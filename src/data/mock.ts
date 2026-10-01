@@ -29,8 +29,9 @@ export const photos = {
 };
 
 export const avatars = {
-  shiela: face('photo-1573496359142-b8d87734a5a2'),
-  juan: face('photo-1500648767791-00dcc994a43e'),
+  // Persona photos come from the Figma file so every surface shows the same people.
+  shiela: '/figma/landlord-shiela.webp',
+  juan: '/figma/juan-portrait.webp',
   sofia: face('photo-1494790108377-be9c29b29330'),
   maryJoy: face('photo-1438761681033-6461ffad8d80'),
   bryan: face('photo-1506794778202-cad84cf45f1d'),
@@ -75,10 +76,10 @@ export const listings = {
     inclusion: 'Electricity & Water',
     rating: 4.86,
     reviews: 426,
-    image: photos.loftWarm,
+    image: '/figma/listing-hero.webp',
     status: 'Ready to move in',
     landlord: landlords.shiela,
-    gallery: [photos.loftWarm, photos.aptWarmWood, photos.bathroom, photos.loftWindows],
+    gallery: ['/figma/listing-hero.webp', photos.aptWarmWood, photos.bathroom, photos.loftWindows],
     maxOccupants: 6,
     pin: { x: 52, y: 46 },
   }),
@@ -379,7 +380,7 @@ export const juan = {
   occupants: '1 adult + pet',
   employer: 'Brightline Media Inc.',
   jobTitle: 'Marketing Manager',
-  income: 52000,
+  income: 68500,
   years: '2 years',
   moveIn: 'September 1, 2026',
   avatar: avatars.juan,

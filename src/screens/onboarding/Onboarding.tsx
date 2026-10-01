@@ -308,7 +308,12 @@ export function TenantNotifications() {
 /* Reliability Score — the differentiator                              */
 /* ------------------------------------------------------------------ */
 
+type Person = { name: string; title: string; avatar: string; badge: number; decimals?: number; fill?: boolean };
+
+const JUAN: Person = { name: juan.name, title: 'Top Applicant', avatar: '/figma/juan-portrait.webp', badge: juan.score };
+
 type ScoreProps = {
+  person?: Person;
   title?: string;
   body?: string;
   cta?: string;
@@ -316,6 +321,7 @@ type ScoreProps = {
 };
 
 export function ReliabilityScore({
+  person = JUAN,
   title = 'Your Tenant Reliability Score',
   body = 'Stand out to top landlords and secure your ideal space faster. Your score is built on your on-time payments and verified reviews. This gives you a competitive edge when applying.',
   cta = 'Continue',
@@ -343,19 +349,19 @@ export function ReliabilityScore({
       </div>
       <div className="score__profile">
         <div className="score__avatar-wrap">
-          <motion.div className="score__avatar" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}>
-            <img src="/figma/juan-portrait.webp" alt={juan.name} />
+          <motion.div className={`score__avatar ${person.fill ? 'score__avatar--fill' : ''}`} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}>
+            <img src={person.avatar} alt={person.name} />
           </motion.div>
           <svg className="score__ring" viewBox="0 0 170 170" aria-hidden>
             <motion.circle cx="85" cy="85" r="82" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.3, ease: spring, delay: 0.35 }} />
           </svg>
           <motion.div className="score__badge" initial={{ scale: 0, rotate: -12 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 420, damping: 16, delay: 0.45 }}>
-            <CountUp to={juan.score} delay={0.45} duration={1.1} />
+            <CountUp to={person.badge} delay={0.45} duration={1.1} format={(n) => n.toFixed(person.decimals ?? 0)} />
           </motion.div>
         </div>
         <motion.div className="score__name" {...rise(0.3)}>
-          <p className="t-h2">{juan.name}</p>
-          <p className="t-h4-medium">Top Applicant</p>
+          <p className="t-h2">{person.name}</p>
+          <p className="t-h4-medium">{person.title}</p>
         </motion.div>
       </div>
       <div className="score__stack">

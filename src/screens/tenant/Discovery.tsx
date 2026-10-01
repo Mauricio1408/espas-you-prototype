@@ -25,7 +25,7 @@ export function TenantDashboard() {
     () =>
       feed.map((s) => ({
         ...s,
-        items: chips.length === 0 ? s.items : s.items.filter((l) => chips.some((c) => lifestyleMatch[c]?.(l))),
+        items: s.items.filter((l, i) => chips.length === 0 || (i === 0 && l.id === 'cozy-loft') || chips.some((c) => lifestyleMatch[c]?.(l))),
       })),
     [chips],
   );
@@ -105,7 +105,8 @@ export function MapView({ initialListing, openFilters = false }: { initialListin
   };
 
   const f = state.filters;
-  const pinMatches = (p: MapPin) => !!p.listing && (!f.petFriendly || !!p.petFriendly) && p.listing.price <= f.maxPrice;
+  const typeOf = (l: Listing) => (/^Room/.test(l.location) ? 'Room for rent' : /^Studio|^Loft/.test(l.location) ? 'Studio' : /^Condo/.test(l.location) ? 'Condo' : 'Apartment');
+  const pinMatches = (p: MapPin) => !!p.listing && (f.types.length === 0 || f.types.includes(typeOf(p.listing)));
 
   return (
     <Screen
@@ -168,7 +169,7 @@ export function MapView({ initialListing, openFilters = false }: { initialListin
         </div>
         <motion.button type="button" className="map-tool map-tool--filter" onClick={() => setFilters(true)} whileTap={{ scale: 0.9 }} aria-label="Filters">
           <img src="/figma/icon-filter-blobs.svg" width={17.143} height={17.143} alt="" />
-          {(f.petFriendly || f.moveIn) && <span className="map-tool__dot" />}
+          {(f.moveIn || f.verifiedOnly || f.types.length > 0 || f.amenities.length > 0) && <span className="map-tool__dot" />}
         </motion.button>
       </motion.div>
 
@@ -241,24 +242,28 @@ function ListingSheet({ listing, onClose }: { listing: Listing; onClose: () => v
       </div>
       <div className="lsheet__details">
         <div className="lsheet__stack">
-          <div className="lsheet__row">
-            <span className="verified-row">
-              <span className="verified-badge">
-                <img src="/figma/verified-badge.svg" width={19.86} height={19.86} alt="" />
-                <img className="verified-badge__check" src="/figma/verified-check.svg" width={12} height={12} alt="" />
-              </span>
-              <span className="t-b2 c-grey">Verified Landlord</span>
-            </span>
-            <span className="lsheet__rating">
-              <img src="/figma/icon-star-20.svg" width={20} height={20} alt="" />
-              <b>{listing.rating.toFixed(2)}</b>
-              <span>({listing.reviews})</span>
-            </span>
+          <div className="lsheet__stack lsheet__stack--20">
+            <div className="lsheet__stack">
+              <div className="lsheet__row">
+                <span className="verified-row">
+                  <span className="verified-badge">
+                    <img src="/figma/verified-badge.svg" width={19.86} height={19.86} alt="" />
+                    <img className="verified-badge__check" src="/figma/verified-check.svg" width={12} height={12} alt="" />
+                  </span>
+                  <span className="t-b2 c-grey">Verified Landlord</span>
+                </span>
+                <span className="lsheet__rating">
+                  <img src="/figma/icon-star-20.svg" width={20} height={20} alt="" />
+                  <b>{listing.rating.toFixed(2)}</b>
+                  <span>({listing.reviews})</span>
+                </span>
+              </div>
+              <p className="t-h4 c-primary">{listing.id === 'cozy-loft' ? 'Cozy Loft in Uptown Center, Manila' : listing.title}</p>
+            </div>
+            <p className="t-h2">{peso(listing.price)} / month</p>
           </div>
-          <p className="t-h4 c-primary">{listing.title}</p>
-          <p className="t-h2">{peso(listing.price)} / month</p>
           <p className="lsheet__meta">
-            {listing.inclusion}
+            {/included/i.test(listing.inclusion) ? listing.inclusion : `${listing.inclusion} Included`}
             <img src="/figma/dot-4.svg" width={4} height={4} alt="" />
             Up to {listing.maxOccupants ?? 4} pax
           </p>
@@ -285,15 +290,32 @@ function ListingSheet({ listing, onClose }: { listing: Listing; onClose: () => v
   );
 }
 
-/** `Sheet / Base — Filters`: move-in toggle + calendar, plus quick switches. */
-function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () => void; onApply: (f: { moveIn: string | null; petFriendly: boolean; furnished: boolean }) => void }) {
+type Filters = { moveIn: string | null; verifiedOnly: boolean; types: string[]; amenities: string[] };
+
+const PLACE_TYPES = ['Studio', 'Condo', 'Apartment', 'Room for rent'];
+const VIBES = ['Near transit', 'City Center', 'Gym', 'Near Supermarket', 'Quiet', 'Nightlife', 'Security'];
+
+/** `Toggle / Option` — Default: white + Neutral/200 stroke · Active: Red/300 fill. */
+function ToggleOption({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
+  return (
+    <motion.button type="button" aria-pressed={on} className={`toggle-option ${on ? 'is-on' : ''}`} onClick={onClick} whileTap={{ scale: 0.95 }}>
+      {label}
+    </motion.button>
+  );
+}
+
+/** `Sheet / Base` + `Modal / Filter Content`, structure and spacing per Figma frame 2662:12774. */
+function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () => void; onApply: (f: Filters) => void }) {
   const { state } = useStore();
   const [later, setLater] = useState(!!state.filters.moveIn);
   const [date, setDate] = useState<Date>(new Date(2026, 7, 14));
-  const [pet, setPet] = useState(state.filters.petFriendly);
-  const [furnished, setFurnished] = useState(state.filters.furnished);
-  const count = Math.round(1000 * (later ? 0.64 : 1) * (pet ? 0.21 : 1) * (furnished ? 1 : 1.3));
-  const label = !later && !pet ? '1000+' : String(count);
+  const [verified, setVerified] = useState(state.filters.verifiedOnly);
+  const [types, setTypes] = useState<string[]>(state.filters.types);
+  const [vibes, setVibes] = useState<string[]>(state.filters.amenities);
+  const flip = (xs: string[], x: string) => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
+  const none = !later && !verified && types.length === 0 && vibes.length === 0;
+  const count = Math.max(3, Math.round(1000 * (later ? 0.64 : 1) * (verified ? 0.82 : 1) * (types.length ? types.length * 0.22 : 1) * Math.pow(0.86, vibes.length)));
+  const label = none ? '1000+' : String(count);
 
   return (
     <Overlay open={open} onClose={onClose}>
@@ -301,48 +323,62 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
         <button type="button" className="date-sheet__close" onClick={onClose} aria-label="Close">
           <img src="/figma/icon-x.svg" width={32} height={32} alt="" />
         </button>
-        <p className="t-h1 filters__title">Filters</p>
+        <p className="filters__title">Filters</p>
         <div className="filters__scroll scroll">
-          <p className="filters__label">Move-in date</p>
-          <div className="seg-toggle" role="tablist">
-            {['Available Now', 'On a later date'].map((t, i) => {
-              const on = (i === 1) === later;
-              return (
-                <button key={t} type="button" role="tab" aria-selected={on} className={on ? 'is-on' : ''} onClick={() => setLater(i === 1)}>
-                  {on && <motion.span layoutId="seg-toggle" className="seg-toggle__thumb" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
-                  <span>{t}</span>
-                </button>
-              );
-            })}
-          </div>
-          <AnimatePresence initial={false}>
-            {later && (
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: spring }} style={{ overflow: 'hidden' }}>
-                <Calendar value={date} onChange={setDate} />
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <div className="filters__switches">
-            <label className="switch-row tappable">
-              <span>
-                <b>🐾 Pet friendly</b>
-                <small>Only show places that welcome pets</small>
-              </span>
-              <Switch on={pet} onChange={setPet} label="Pet friendly" />
-            </label>
-            <label className="switch-row tappable">
-              <span>
-                <b>🛋️ Furnished</b>
-                <small>Move in with just your suitcase</small>
-              </span>
-              <Switch on={furnished} onChange={setFurnished} label="Furnished" />
-            </label>
+          <div className="filters__content">
+            <div className="filters__group">
+              <p className="filters__label">Move-in date</p>
+              <div className="seg-control" role="tablist">
+                {['Available Now', 'On a later date'].map((t, i) => {
+                  const on = (i === 1) === later;
+                  return (
+                    <button key={t} type="button" role="tab" aria-selected={on} className={`seg-control__opt ${on ? 'is-on' : ''}`} onClick={() => setLater(i === 1)}>
+                      {on && <motion.span layoutId="seg-control" className="seg-control__thumb" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
+                      <span className="seg-control__label">{t}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <AnimatePresence initial={false}>
+                {later && (
+                  <motion.div className="filters__calendar" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: spring }}>
+                    <Calendar value={date} onChange={setDate} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            <hr className="filters__divider" />
+            <div className="filters__group">
+              <div className="filters__row">
+                <p className="filters__label">Verified landlords only</p>
+                <Switch on={verified} onChange={setVerified} label="Verified landlords only" />
+              </div>
+              <p className="filters__desc">This ensures that only verified landlords from our system are shown</p>
+            </div>
+            <hr className="filters__divider" />
+            <div className="filters__group">
+              <p className="filters__label">Type of place</p>
+              <div className="toggle-grid">
+                {PLACE_TYPES.map((t) => (
+                  <ToggleOption key={t} label={t} on={types.includes(t)} onClick={() => setTypes((xs) => flip(xs, t))} />
+                ))}
+              </div>
+            </div>
+            <hr className="filters__divider" />
+            <div className="filters__group">
+              <p className="filters__label">Amenities and Vibes</p>
+              <div className="toggle-wrap">
+                {VIBES.map((t) => (
+                  <ToggleOption key={t} label={t} on={vibes.includes(t)} onClick={() => setVibes((xs) => flip(xs, t))} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         <div className="filters__footer">
           <Button
             onClick={() => {
-              onApply({ moveIn: later ? formatDate(date) : null, petFriendly: pet, furnished });
+              onApply({ moveIn: later ? formatDate(date) : null, verifiedOnly: verified, types, amenities: vibes });
               onClose();
             }}
           >
@@ -357,9 +393,10 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
             className="primary-skip__skip"
             onClick={() => {
               setLater(false);
-              setPet(false);
-              setFurnished(true);
-              onApply({ moveIn: null, petFriendly: false, furnished: true });
+              setVerified(false);
+              setTypes([]);
+              setVibes([]);
+              onApply({ moveIn: null, verifiedOnly: false, types: [], amenities: [] });
             }}
           >
             Remove filters
@@ -374,15 +411,20 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
 /* Tenant / View Listing                                               */
 /* ------------------------------------------------------------------ */
 
-const amenities = [
-  { icon: 'amenity-wind', label: 'Air conditioning' },
-  { icon: 'amenity-users', label: 'Good for 6 Persons' },
-  { icon: 'amenity-wifi', label: 'Fast Wi-Fi' },
-  { icon: 'amenity-droplet', label: 'In-unit washing machine' },
-  { icon: 'amenity-pet', label: 'Pet-friendly' },
-  { icon: 'amenity-gym', label: 'Gym access' },
-];
-const moreAmenities = ['🍳 Full kitchen', '🧺 Laundry area', '🚗 Street parking', '🔐 Keyless entry', '📺 Smart TV', '🛗 Elevator', '🔥 Hot shower', '🌿 Shared roof deck'];
+const amenities = ['❄️ Air conditioning', '👥 Good for 6 Persons', '📶 Fast Wi-Fi', '🧺 In-unit washing machine', '🐾 Pet-friendly', '🏋️ Gym access'];
+const moreAmenities = ['🍳 Full kitchen', '🧹 Laundry area', '🚗 Street parking', '🔐 Keyless entry', '📺 Smart TV', '🛗 Elevator', '🚿 Hot shower', '🌿 Shared roof deck'];
+
+function Amenity({ item }: { item: string }) {
+  const [emoji, ...rest] = item.split(' ');
+  return (
+    <>
+      <span className="amenity__emoji" aria-hidden>
+        {emoji}
+      </span>
+      {rest.join(' ')}
+    </>
+  );
+}
 
 export function ViewListing() {
   const nav = useNav<ScreenId>();
@@ -539,16 +581,15 @@ export function ViewListing() {
             <h2 className="vl__h2">What this place offers</h2>
             <div className="amenities">
               {amenities.map((a) => (
-                <p key={a.label} className="amenity">
-                  <img src={`/figma/${a.icon}.svg`} width={24} height={24} alt="" />
-                  {a.label}
+                <p key={a} className="amenity">
+                  <Amenity item={a} />
                 </p>
               ))}
               <AnimatePresence initial={false}>
                 {moreOpen &&
                   moreAmenities.map((a, i) => (
-                    <motion.p key={a} className="amenity amenity--more" initial={{ opacity: 0, x: -10, height: 0 }} animate={{ opacity: 1, x: 0, height: 24 }} exit={{ opacity: 0, height: 0 }} transition={{ delay: i * 0.03, duration: 0.25 }}>
-                      {a}
+                    <motion.p key={a} className="amenity" initial={{ opacity: 0, x: -10, height: 0 }} animate={{ opacity: 1, x: 0, height: 24 }} exit={{ opacity: 0, height: 0 }} transition={{ delay: i * 0.03, duration: 0.25 }}>
+                      <Amenity item={a} />
                     </motion.p>
                   ))}
               </AnimatePresence>
@@ -574,9 +615,19 @@ export function ViewListing() {
 
           <div className="vl__block vl__block--about">
             <h2 className="vl__h2">About this place</h2>
-            <motion.p className="vl__about" animate={{ height: readMore ? 'auto' : 120 }} transition={{ duration: 0.35, ease: spring }}>
+            <p className="vl__about">
               Welcome to your new home in the heart of Uptown Center, Manila! This cozy loft offers the perfect blend of comfort and convenience, nestled just minutes away from vibrant shopping malls, gourmet restaurants, and serene parks. You'll enjoy easy access to public transportation, making your daily commute a breeze. The neighborhood is known for its friendly and respectful community, ensuring a peaceful and welcoming atmosphere for all residents.
-            </motion.p>
+            </p>
+            <AnimatePresence initial={false}>
+              {readMore && (
+                <motion.div className="vl__about vl__about--more" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease: spring }}>
+                  <p>
+                    The loft sits on the fourth floor of a secured building with 24/7 guards and keycard access. Inside you’ll find four double beds across two sleeping areas, two shared bathrooms with hot showers, and a full kitchen.
+                  </p>
+                  <p>Shiela lives nearby and typically responds within the day. Electricity and water are included in the rent.</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <Button variant="primary" size="md" className="btn--dark" onClick={() => setReadMore((r) => !r)}>
               {readMore ? 'Show less' : 'Read more'}
             </Button>

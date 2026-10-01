@@ -12,6 +12,7 @@ import {
 } from './onboarding/Onboarding';
 import { Apply1, Apply2, Apply3, Apply4, Apply5 } from './apply/Apply';
 import { Account, ApplicationList, ApplicationStatus, ChatThread, Favorites, Messages } from './inbox/Inbox';
+import { AddListing1, AddListing2, AddListing3, AddListing4, AddListing5, AddListingPublished } from './landlord/AddListing';
 import { IdScanBack, LandlordApproved, LandlordBasicInfo, LandlordDashboard, LandlordEmergency, LandlordNotifications, LandlordVerify, ReviewApplicant, TrustedTenants } from './landlord/Landlord';
 import { ActiveListing, MapFiltersEntry, MapView, TenantDashboard, ViewListing } from './tenant/Discovery';
 
@@ -73,6 +74,12 @@ const screens = {
 
   landlordDashboard: { title: 'Landlord Dashboard', section: '05 Landlord', journey: 'landlord', figma: '2518:12816', component: LandlordDashboard, note: 'Live search and quick filters. If Juan applied in the tenant journey he appears with a pulsing “New” badge; tab bar scrolls to sections.' },
   reviewApplicant: { title: 'Review Applicant', section: '05 Landlord', journey: 'landlord', figma: '2593:7293', parent: 'landlordDashboard', component: ReviewApplicant, note: 'Merges “Review Applicants” and the 1490px form into one scroll with a pinned decision bar. View Profile opens an animated score breakdown; Approve/Decline confirm first and can be undone.' },
+  addListing1: { title: 'Add Listing 1 · Location', section: '08 Add Listing (from wireframes)', journey: 'landlord', figma: '2310:1312', parent: 'landlordDashboard', component: AddListing1, note: 'Hi-fi build of the Add Listing wireframes (WF · 03). Property type uses the Figma Toggle / Option component.' },
+  addListing2: { title: 'Add Listing 2 · Space', section: '08 Add Listing (from wireframes)', journey: 'landlord', figma: '2310:1368', parent: 'addListing1', component: AddListing2, note: 'Steppers roll their numbers; furnishing is single-select, amenities multi-select.' },
+  addListing3: { title: 'Add Listing 3 · Photos', section: '08 Add Listing (from wireframes)', journey: 'landlord', figma: '2310:1462', parent: 'addListing2', component: AddListing3, note: 'Tap empty slots to add photos (they pop in), × removes one; the counter updates live.' },
+  addListing4: { title: 'Add Listing 4 · Price & Terms', section: '08 Add Listing (from wireframes)', journey: 'landlord', figma: '2311:1351', parent: 'addListing3', component: AddListing4, note: 'Formatted rent input, dropdowns for deposit / advance / lease and a date sheet for availability.' },
+  addListing5: { title: 'Add Listing 5 · Review', section: '08 Add Listing (from wireframes)', journey: 'landlord', figma: '2311:1420', parent: 'addListing4', component: AddListing5, note: 'Live preview card; Edit jumps back to a step and returns. Publish is gated on the confirmation checkbox.' },
+  addListingPublished: { title: 'Listing Published', section: '08 Add Listing (from wireframes)', journey: 'landlord', figma: '2311:1522', parent: 'addListing5', component: AddListingPublished, note: 'The new listing now appears first under Your Listings, and tenants can open it.' },
   landlordApproved: { title: 'Approved Application', section: '05 Landlord', journey: 'landlord', figma: '2596:9127', parent: 'reviewApplicant', component: LandlordApproved, note: 'The decision writes to shared state — switch to the tenant journey and Juan’s status and inbox have updated.' },
 } satisfies Record<string, Omit<ScreenMeta, 'parent'> & { parent?: string }>;
 

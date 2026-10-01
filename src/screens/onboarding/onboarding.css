@@ -196,10 +196,6 @@
   width: 440px;
   height: 350px;
   overflow: hidden;
-  -webkit-mask-image: url('/figma/reliability-gradient-mask.svg');
-  mask-image: url('/figma/reliability-gradient-mask.svg');
-  -webkit-mask-size: 440px 350px;
-  mask-size: 440px 350px;
 }
 .score__gradient img {
   width: 440px;
@@ -235,6 +231,13 @@
   border: 4.8px solid var(--neutral-100);
   overflow: hidden;
   background: #d9d9d9;
+}
+.score__avatar--fill img {
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  object-position: center 18%;
 }
 .score__avatar img {
   position: absolute;

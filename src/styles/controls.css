@@ -92,9 +92,10 @@
 .field--grey {
   background: var(--surface-default);
 }
+/* Active: a soft red stroke + red drop shadow (not a heavy outline ring) */
 .field:focus-within {
-  border-color: rgba(186, 14, 10, 0.55);
-  box-shadow: 0 0 0 4px rgba(186, 14, 10, 0.08), var(--elevation-default);
+  border-color: rgba(186, 14, 10, 0.22);
+  box-shadow: 0 4px 16px rgba(186, 14, 10, 0.12);
 }
 .field.is-error {
   border-color: var(--red-200);
@@ -111,16 +112,17 @@
   transition: transform 220ms var(--ease-spring), color 160ms ease-out;
   white-space: nowrap;
 }
+/* Floated label sits just above the value so the pair reads as one centred block */
 .field.is-filled .field__label,
 .field:focus-within .field__label {
-  transform: translateY(-112%) scale(0.6);
+  transform: translateY(-96%) scale(0.6);
   color: var(--text-grey);
 }
 .field__input {
   flex: 1;
   min-width: 0;
   height: 100%;
-  padding-top: 16px;
+  padding-top: 12px;
   border: 0;
   outline: 0;
   background: transparent;
@@ -285,26 +287,27 @@
 
 /* ---------- Switch ---------- */
 
+/* `Toggle / Switch` — 62 × 28 track, 38 × 24 pill knob (Figma 2424:8568) */
 .switch {
   position: relative;
   display: flex;
   align-items: center;
-  width: 51px;
-  height: 31px;
+  width: 62px;
+  height: 28px;
   padding: 2px;
   border-radius: 100px;
-  background: #e9e9ea;
+  background: rgba(60, 60, 67, 0.3);
   transition: background-color 200ms ease-out;
   flex: none;
 }
 .switch.is-on {
   justify-content: flex-end;
-  background: var(--surface-primary);
+  background: var(--red-300);
 }
 .switch__knob {
-  width: 27px;
-  height: 27px;
-  border-radius: 50%;
-  background: #fff;
+  width: 38px;
+  height: 24px;
+  border-radius: 100px;
+  background: var(--neutral-100);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 3px 1px rgba(0, 0, 0, 0.06);
 }

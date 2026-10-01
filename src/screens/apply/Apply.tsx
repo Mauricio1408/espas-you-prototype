@@ -344,6 +344,7 @@ export function Apply4() {
         ...s,
         application: { ...s.application, moveIn: moveIn ?? s.application.moveIn, message, status: 'submitted', submittedAt: 'Today, 9:41 AM' },
         landlord: { ...s.landlord, decisions: { ...s.landlord.decisions, juan: 'In Review' } },
+        conversation: [{ from: 'juan' as const, text: message }, ...s.conversation.slice(1)],
       }));
       nav.push('apply5', { transition: 'smart' });
     }, 900);

@@ -4,9 +4,9 @@ import { ChevronsDown } from 'react-feather';
 import { Screen } from '../../components/Chrome';
 import { Button, Switch } from '../../components/Controls';
 import { TenantBottomNav, toast } from '../../components/Feed';
-import { juan, landlordThreads, listingById, listings, peso, savedLabels, threads, type Listing } from '../../data/mock';
+import { avatars, juan, landlordThreads, listingById, listings, peso, savedLabels, threads, type Listing } from '../../data/mock';
 import { useNav, useParams } from '../../nav/Navigator';
-import { useStore } from '../../state/store';
+import { seedConversation, useStore, type ChatMessage } from '../../state/store';
 import type { ScreenId } from '../registry';
 import './inbox.css';
 
@@ -234,12 +234,9 @@ export function Messages() {
   const [tab, setTab] = useState<MsgTab>('All');
   const [read, setRead] = useState<string[]>([]);
   const [query, setQuery] = useState<string | null>(null);
+  const preview = conversationPreview(state.conversation, 'juan');
   const list = threads
-    .map((t) =>
-      t.name === 'Shiela Mae Smith' && state.application.status === 'approved'
-        ? { ...t, snippet: 'Congrats Juan! Your application is approved 🎉', time: 'Just now', unread: true }
-        : t,
-    )
+    .map((t) => (t.name === 'Shiela Mae Smith' ? { ...t, ...preview } : t))
     .filter((t) => (tab === 'Unread' ? t.unread && !read.includes(t.name) : tab === 'Applications' ? /review|application|approved/i.test(t.snippet) : true))
     .filter((t) => !query || t.name.toLowerCase().includes(query.toLowerCase()));
 
@@ -290,7 +287,7 @@ export function Messages() {
                   }}
                 >
                   <span className="thread__avatar">
-                    <img src={t.name === 'Shiela Mae Smith' ? '/figma/landlord-shiela.webp' : t.avatar} alt="" />
+                    <img src={t.avatar} alt="" />
                   </span>
                   <span className="thread__body">
                     <span className="thread__top">
@@ -314,45 +311,52 @@ export function Messages() {
   );
 }
 
-const seedChat: Record<string, { me: boolean; text: string }[]> = {
-  'Juan Dela Cruz': [
-    { me: false, text: juan.message },
-    { me: false, text: 'Is the unit still available for August?' },
-  ],
-  'Shiela Mae Smith': [
-    { me: true, text: juan.message },
-    { me: false, text: 'Hi Juan! Thanks for applying 😊 Your documents look complete.' },
-    { me: false, text: 'Docs look good, reviewing tonight.' },
-  ],
+/** Last-message preview of the Juan ↔ Shiela thread, from one side's point of view. */
+export function conversationPreview(conv: ChatMessage[], viewer: ChatMessage['from']) {
+  const last = conv[conv.length - 1];
+  return {
+    snippet: last ? `${last.from === viewer ? 'You: ' : ''}${last.text}` : '',
+    time: conv.length > seedConversation.length ? 'Just now' : '30 minutes ago',
+    unread: !!last && last.from !== viewer,
+  };
+}
+
+const autoReply: Record<ChatMessage['from'], string> = {
+  shiela: 'Sounds good! I’ll get back to you shortly.',
+  juan: 'Thank you, Shiela! Looking forward to it.',
 };
 
 /** Chat thread — not in the Figma file (Messages was a leaf); built from the same tokens. */
 export function ChatThread() {
   const nav = useNav();
   const { name = 'Shiela Mae Smith' } = useParams<{ name: string }>();
-  const { state } = useStore();
+  const { state, send } = useStore();
   const t = [...threads, ...landlordThreads].find((x) => x.name === name) ?? threads[0];
-  const [msgs, setMsgs] = useState(() => {
-    const base = seedChat[name] ?? [{ me: false, text: t.snippet }];
-    return state.application.status === 'approved' && name === 'Shiela Mae Smith' ? [...base, { me: false, text: 'Congrats Juan! Your application is approved 🎉 Let’s set your move-in date.' }] : base;
-  });
+  // Juan and Shiela share one conversation; whoever is viewing is "me".
+  const viewer: ChatMessage['from'] | null = name === 'Shiela Mae Smith' ? 'juan' : name === 'Juan Dela Cruz' ? 'shiela' : null;
+  const [local, setLocal] = useState([{ me: false, text: t.snippet }]);
+  const msgs = viewer ? state.conversation.map((m) => ({ me: m.from === viewer, text: m.text })) : local;
   const [draft, setDraft] = useState('');
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [msgs, typing]);
+  }, [msgs.length, typing]);
 
-  const send = () => {
-    if (!draft.trim()) return;
-    setMsgs((m) => [...m, { me: true, text: draft.trim() }]);
+  const submit = () => {
+    const text = draft.trim();
+    if (!text) return;
     setDraft('');
+    if (viewer) send(viewer, text);
+    else setLocal((m) => [...m, { me: true, text }]);
     setTimeout(() => setTyping(true), 500);
     setTimeout(() => {
       setTyping(false);
-      setMsgs((m) => [...m, { me: false, text: 'Sounds good! I’ll get back to you shortly.' }]);
+      if (viewer) send(viewer === 'juan' ? 'shiela' : 'juan', autoReply[viewer === 'juan' ? 'shiela' : 'juan']);
+      else setLocal((m) => [...m, { me: false, text: 'Sounds good! I’ll get back to you shortly.' }]);
     }, 2000);
   };
+  const avatar = name === 'Shiela Mae Smith' ? avatars.shiela : name === 'Juan Dela Cruz' ? avatars.juan : t.avatar;
 
   return (
     <Screen
@@ -361,7 +365,7 @@ export function ChatThread() {
           className="composer"
           onSubmit={(e) => {
             e.preventDefault();
-            send();
+            submit();
           }}
         >
           <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={`Message ${name.split(' ')[0]}…`} />
@@ -378,11 +382,11 @@ export function ChatThread() {
           <img src="/figma/icon-arrow-left.svg" width={24} height={24} alt="" />
         </motion.button>
         <span className="thread__avatar">
-          <img src={name === 'Shiela Mae Smith' ? '/figma/landlord-shiela.webp' : t.avatar} alt="" />
+          <img src={avatar} alt="" />
         </span>
         <div>
           <p className="t-b1-semibold">{name}</p>
-          <p className="t-b3 c-grey">{t.property} · usually replies within a day</p>
+          <p className="t-b3 c-grey">{name === 'Juan Dela Cruz' ? 'Applicant · Cozy Loft in Uptown Center' : `${t.property} · usually replies within a day`}</p>
         </div>
       </div>
       <div className="scroll chat">
@@ -415,7 +419,7 @@ export function Account() {
   const { state, update } = useStore();
   const notif = state.tenant.notifications ?? true;
   const Row = ({ icon, w, h, label, value, badge, onClick, trailing }: { icon: string; w: number; h: number; label: string; value?: string; badge?: number; onClick?: () => void; trailing?: React.ReactNode }) => (
-    <motion.button type="button" className="arow" onClick={onClick} whileTap={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
+    <motion.div role="button" tabIndex={0} className="arow" onClick={onClick} onKeyDown={(e) => e.key === 'Enter' && onClick?.()} whileTap={{ backgroundColor: 'rgba(0,0,0,0.03)' }}>
       <span className="arow__icon">
         {icon === 'feather:chevrons-down' ? <ChevronsDown size={22} strokeWidth={2} color="#1e1e1e" /> : <img src={`/figma/${icon}.svg`} width={w} height={h} alt="" />}
         {!!badge && <span className="arow__badge">{badge}</span>}
@@ -423,7 +427,7 @@ export function Account() {
       <span className="arow__label">{label}</span>
       {value && <span className="arow__value">{value}</span>}
       {trailing ?? <img src="/figma/icon-chevron-right-grey.svg" width={6} height={10} alt="" />}
-    </motion.button>
+    </motion.div>
   );
 
   return (
@@ -437,17 +441,11 @@ export function Account() {
           <p className="t-h2">{juan.name}</p>
           <div className="profile-card__chips">
             <span className="vchip">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden>
-                <circle cx="12" cy="12" r="11" fill="#fff" />
-                <path d="m7 12.5 3 3 7-7" fill="none" stroke="#BA0E0A" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <img src="/figma/verified-chip.svg" width={16} height={16} alt="" />
               ID Verified
             </span>
             <span className="vchip">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden>
-                <circle cx="12" cy="12" r="11" fill="#fff" />
-                <path d="m7 12.5 3 3 7-7" fill="none" stroke="#BA0E0A" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <img src="/figma/verified-chip.svg" width={16} height={16} alt="" />
               Employment Verified
             </span>
           </div>
@@ -481,7 +479,11 @@ export function Account() {
             h={20.3301}
             label="Notifications"
             onClick={() => update((s) => ({ ...s, tenant: { ...s.tenant, notifications: !notif } }))}
-            trailing={<Switch on={notif} onChange={(v) => update((s) => ({ ...s, tenant: { ...s.tenant, notifications: v } }))} label="Notifications" />}
+            trailing={
+              <span onClick={(e) => e.stopPropagation()}>
+                <Switch on={notif} onChange={(v) => update((s) => ({ ...s, tenant: { ...s.tenant, notifications: v } }))} label="Notifications" />
+              </span>
+            }
           />
           <Row icon="icon-info" w={20.3333} h={20.3333} label="Help Center" onClick={() => toast('Help Center opens in a browser')} />
         </div>

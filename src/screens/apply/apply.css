@@ -95,7 +95,7 @@
   border-radius: 25px;
   border: 0.5px solid var(--surface-primary);
   object-fit: cover;
-  object-position: top;
+  object-position: center 18%;
 }
 .applying__ll-check {
   position: absolute;
@@ -162,8 +162,8 @@
   transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
 }
 .afield__pill:focus-within {
-  border-color: rgba(186, 14, 10, 0.55);
-  box-shadow: 0 0 0 4px rgba(186, 14, 10, 0.08);
+  border-color: rgba(186, 14, 10, 0.22);
+  box-shadow: 0 4px 16px rgba(186, 14, 10, 0.12);
 }
 .afield__pill.is-error {
   border-color: var(--red-200);
@@ -195,7 +195,8 @@
   outline: 0;
 }
 .amessage:focus {
-  border-color: rgba(186, 14, 10, 0.55);
+  border-color: rgba(186, 14, 10, 0.22);
+  box-shadow: 0 4px 16px rgba(186, 14, 10, 0.12);
 }
 
 .apply__buttons {

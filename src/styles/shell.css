@@ -159,7 +159,7 @@
 .segmented button.is-active {
   color: var(--surface-primary);
 }
-.segmented button span {
+.segmented button span:not(.segmented__thumb) {
   position: relative;
   z-index: 1;
 }

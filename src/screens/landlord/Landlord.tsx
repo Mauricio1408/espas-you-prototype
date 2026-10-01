@@ -1,16 +1,17 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Camera, Grid, Home, MessageCircle } from 'react-feather';
+import { ArrowLeft, Camera, FileText, Grid, Home, MessageCircle, Truck } from 'react-feather';
 import { Screen } from '../../components/Chrome';
 import { BackLink, Button, PrimaryWithSkip, ProgressBar, RadioCard, TitleBlock } from '../../components/Controls';
 import { ratingShort, toast } from '../../components/Feed';
 import { Overlay } from '../../components/Inputs';
 import { applicants, juan, landlordListings, landlordThreads, listings, peso, type ApplicantStatus } from '../../data/mock';
 import { Portal, useNav, useParams } from '../../nav/Navigator';
-import { useStore } from '../../state/store';
+import { draftToListing, initialDraft, useStore } from '../../state/store';
 import { NotificationsStep, ReliabilityScore, rise } from '../onboarding/Onboarding';
 import type { ScreenId } from '../registry';
 import '../apply/apply.css';
+import { conversationPreview } from '../inbox/Inbox';
 import '../inbox/inbox.css';
 import './landlord.css';
 
@@ -20,7 +21,7 @@ const spring = [0.32, 0.72, 0, 1] as const;
 /* Landlord onboarding frame — header fixed, form scrolls, CTA pinned  */
 /* ------------------------------------------------------------------ */
 
-function LandlordFrame({ step, children, cta }: { step: number; children: ReactNode; cta: ReactNode }) {
+export function LandlordFrame({ step, children, cta, ctaSpace = 190 }: { step: number; children: ReactNode; cta: ReactNode; ctaSpace?: number }) {
   const nav = useNav();
   return (
     <Screen>
@@ -30,7 +31,7 @@ function LandlordFrame({ step, children, cta }: { step: number; children: ReactN
       <div className="step-scroll__progress" style={{ top: 72 }}>
         <ProgressBar step={step} />
       </div>
-      <div className="scroll ll-scroll">
+      <div className="scroll ll-scroll" style={{ bottom: ctaSpace }}>
         <div className="ll-content">{children}</div>
       </div>
       <div className="ll-cta">{cta}</div>
@@ -38,7 +39,7 @@ function LandlordFrame({ step, children, cta }: { step: number; children: ReactN
   );
 }
 
-function LField({ label, value, onChange, inputMode }: { label: string; value: string; onChange: (v: string) => void; inputMode?: 'tel' | 'text' }) {
+export function LField({ label, value, onChange, inputMode }: { label: string; value: string; onChange: (v: string) => void; inputMode?: 'tel' | 'text' }) {
   return (
     <label className="afield tappable">
       <span className="afield__label">
@@ -324,6 +325,7 @@ export function LandlordNotifications() {
 export function TrustedTenants() {
   return (
     <ReliabilityScore
+      person={{ name: 'Shiela Mae Smith', title: 'Verified Landlord', avatar: '/figma/landlord-shiela.webp', badge: 4.95, decimals: 2, fill: true }}
       title="Peace of mind with every tenant"
       body="Our Tenant Reliability Score screens renters using verified data, so you can confidently choose the right fit for your property."
       cta="Enlist my property"
@@ -342,7 +344,7 @@ type LTab = 'home' | 'listings' | 'messages' | 'account';
 
 export function LandlordDashboard() {
   const nav = useNav<ScreenId>();
-  const { state } = useStore();
+  const { state, update } = useStore();
   const [filter, setFilter] = useState('All Listings');
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<LTab>('home');
@@ -351,8 +353,9 @@ export function LandlordDashboard() {
   const decisions = state.landlord.decisions;
   const juanNew = state.application.status === 'submitted' && decisions.juan === 'In Review';
 
-  const occupied = (id: string) => id !== 'cozy-loft';
-  const shownListings = landlordListings.filter((l) => {
+  const occupied = (id: string) => id !== 'cozy-loft' && id !== 'shiela-new';
+  const mine = state.draft.published ? [draftToListing(state.draft), ...landlordListings] : landlordListings;
+  const shownListings = mine.filter((l) => {
     if (query && !l.title.toLowerCase().includes(query.toLowerCase())) return false;
     if (filter === 'Occupied') return occupied(l.id);
     if (filter === 'Vacant' || filter === 'New Applications') return !occupied(l.id);
@@ -382,7 +385,12 @@ export function LandlordDashboard() {
                 <span className="t-b2 c-grey">Property, tenant, or applicant</span>
               </span>
             </label>
-            <motion.button type="button" className="ldash__add" whileTap={{ scale: 0.9, rotate: 90 }} onClick={() => toast('Add Listing exists in wireframes only (WF · 03)')} aria-label="Add listing">
+            <motion.button type="button" className="ldash__add" whileTap={{ scale: 0.9, rotate: 90 }} onClick={() => {
+                if (state.draft.published) update((s) => ({ ...s, draft: { ...initialDraft, title: '', photos: [] } }));
+                nav.push('addListing1');
+              }}
+              aria-label="Add listing"
+            >
               <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden>
                 <path d="M12 5v14M5 12h14" stroke="#1e1e1e" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
@@ -421,7 +429,13 @@ export function LandlordDashboard() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, ease: spring, delay: i * 0.05 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => (occupied(l.id) ? toast(`${l.title} is occupied · rent on track`) : nav.push('reviewApplicant', { params: { id: 'juan' } }))}
+                  onClick={() =>
+                    l.id === 'shiela-new'
+                      ? nav.push('viewListing', { params: { id: l.id } })
+                      : occupied(l.id)
+                        ? toast(`${l.title} is occupied · rent on track`)
+                        : nav.push('reviewApplicant', { params: { id: 'juan' } })
+                  }
                 >
                   <div className="lcard__image">
                     <img src={l.image} alt="" loading="lazy" />
@@ -431,7 +445,7 @@ export function LandlordDashboard() {
                     <p className="t-b2-medium lcard__title">{l.title}</p>
                     <p className="t-h4">{peso(l.price)} / month</p>
                     <div className="lcard__row">
-                      <p className="lcard__meta">1 adult + 2 kids</p>
+                      <p className="lcard__meta">{l.id === 'shiela-new' ? `Up to ${l.maxOccupants} pax · no tenant yet` : '1 adult + 2 kids'}</p>
                       <p className="lcard__rating">
                         {ratingShort(l.rating)}
                         <img src="/figma/icon-star-12.svg" width={12} height={12} alt="" />
@@ -440,7 +454,9 @@ export function LandlordDashboard() {
                   </div>
                   <div className="lcard__overlay">
                     <span className="verified-glass">
-                      {occupied(l.id) ? (
+                      {l.id === 'shiela-new' ? (
+                        <span>New · Vacant</span>
+                      ) : occupied(l.id) ? (
                         <>
                           <img src={l.landlord.avatar} width={20} height={20} alt="" />
                           <span>Occupied</span>
@@ -515,7 +531,7 @@ export function LandlordDashboard() {
             <img src="/figma/icon-chevron-right-18.svg" width={18} height={18} alt="" />
           </div>
           <div className="apps">
-            {landlordThreads.map((t) => (
+            {landlordThreads.map((x) => (x.name === 'Juan Dela Cruz' ? { ...x, ...conversationPreview(state.conversation, 'shiela') } : x)).map((t) => (
               <motion.button key={t.name} type="button" className="app-row" whileTap={{ scale: 0.98 }} onClick={() => nav.push('chatThread', { params: { name: t.name } })}>
                 <span className="thread__avatar">
                   <img src={t.avatar} alt="" />
@@ -569,6 +585,7 @@ export function ReviewApplicant() {
   const { state, decide } = useStore();
   const a = applicants.find((x) => x.id === id) ?? applicants[0];
   const isJuan = a.id === 'juan';
+  const first = a.name.split(' ')[0];
   const app = state.application;
   const status = state.landlord.decisions[a.id] ?? a.status;
   const income = isJuan ? Number(app.work.income.replace(/\D/g, '')) || juan.income : 38000 + a.score * 120;
@@ -578,63 +595,50 @@ export function ReviewApplicant() {
   const [profile, setProfile] = useState(false);
   const decided = status === 'Approved' || status === 'Denied';
 
-  const rows = (r: [string, ReactNode][]) =>
-    r.map(([k, v]) => (
-      <div key={k} className="review__row">
+  /** Card with a 44px header, Neutral/200 dividers and 32px rows (Figma `Stack` cards). */
+  const Section = ({ title, children }: { title: string; children: ReactNode }) => (
+    <div className="rvf-card">
+      <p className="rvf-card__head">{title}</p>
+      {children}
+    </div>
+  );
+  const Row = ({ k, v }: { k: string; v: ReactNode }) => (
+    <>
+      <hr className="rvf-card__div" />
+      <div className="rvf-card__row">
         <span>{k}</span>
         <span>{v}</span>
       </div>
-    ));
+    </>
+  );
 
   return (
-    <Screen
-      footer={
-        <div className="decide-bar">
-          {decided ? (
-            <motion.div className={`decided decided--${status === 'Approved' ? 'good' : 'bad'}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              {status === 'Approved' ? '✓ You approved this applicant' : '✕ You declined this applicant'}
-              <button type="button" onClick={() => decide(a.id, 'In Review')}>
-                Undo
-              </button>
-            </motion.div>
-          ) : (
-            <div className="decide-bar__row">
-              <motion.button type="button" className="decide-btn decide-btn--dark" whileTap={{ scale: 0.96 }} onClick={() => setConfirm('Denied')}>
-                Decline
-              </motion.button>
-              <motion.button type="button" className="decide-btn" whileTap={{ scale: 0.96 }} onClick={() => setConfirm('Approved')}>
-                Approve
-              </motion.button>
-            </div>
-          )}
-          <button type="button" className="decide-bar__msg" onClick={() => nav.push('chatThread', { params: { name: a.name } })}>
-            Message {a.name.split(' ')[0]} before deciding
-          </button>
+    <Screen>
+      <div className="scroll rvf">
+        <div className="rvf-head">
+          <motion.button type="button" className="rvf-back" onClick={nav.back} whileTap={{ scale: 0.9 }} aria-label="Back">
+            <ArrowLeft size={26} strokeWidth={2} color="#1e1e1e" />
+          </motion.button>
+          <div className="rvf-head__text">
+            <p className="t-h3">Review applicant</p>
+            <p className="t-b3 c-grey">Cozy Loft in Uptown Center</p>
+          </div>
         </div>
-      }
-    >
-      <div className="rv__head">
-        <motion.button type="button" className="round-icon" onClick={nav.back} whileTap={{ scale: 0.9 }} aria-label="Back">
-          <img src="/figma/icon-arrow-left.svg" width={24} height={24} alt="" />
-        </motion.button>
-        <div>
-          <p className="t-h3">Review applicant</p>
-          <p className="t-b3 c-grey">Cozy Loft in Uptown Center</p>
-        </div>
-      </div>
-      <div className="scroll rv">
-        <div className="applying">
+
+        <div className="applying rvf-listing">
           <div className="applying__img">
             <img src="/figma/listing-hero.webp" alt="" />
           </div>
           <div className="applying__info">
             <p className="applying__kicker">Applying for:</p>
-            <p className="t-b1-semibold c-primary applying__title">Cozy Loft in Uptown Center</p>
-            <p className="applying__row">
-              <span className="t-b2-medium">{peso(rent)}/month</span>
-              <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
-              <span className="t-b2 c-grey">Good for 6 people</span>
-            </p>
+            <div className="applying__stack">
+              <p className="t-b1-semibold c-primary applying__title">Cozy Loft in Uptown Center</p>
+              <p className="applying__row">
+                <span className="t-b2-medium">{peso(rent)}/month</span>
+                <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
+                <span className="t-b2 c-grey">Good for 6 people</span>
+              </p>
+            </div>
             <p className="applying__row applying__row--small">
               Water &amp; Electricity free
               <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
@@ -648,89 +652,113 @@ export function ReviewApplicant() {
           </div>
         </div>
 
-        <motion.div className="profile-card rv__profile" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: spring }}>
-          <div className="profile-card__avatar">
-            <img src={isJuan ? '/figma/juan-portrait.webp' : a.avatar} alt={a.name} />
-          </div>
-          <p className="t-h2">{a.name}</p>
-          <div className="profile-card__chips">
-            <span className="vchip">✓ ID Verified</span>
-            <span className="vchip">✓ Employment Verified</span>
-          </div>
-          <div className="profile-card__stats">
-            <div>
-              <b>{a.score}</b>
-              <span>Reliability Score</span>
+        <div className="rvf-stack">
+          <motion.div className="rvf-profile" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: spring }}>
+            <div className="rvf-profile__avatar">
+              <img src={a.avatar} alt={a.name} />
             </div>
-            <span className="profile-card__div" />
-            <div>
-              <b>{isJuan ? juan.rating : (3.9 + a.score / 120).toFixed(2)}</b>
-              <span>Rating</span>
+            <p className="rvf-profile__name">{a.name}</p>
+            <div className="rvf-profile__chips">
+              {['ID Verified', 'Employment Verified'].map((c) => (
+                <span key={c} className="rvf-chip">
+                  <img src="/figma/verified-chip.svg" width={16} height={16} alt="" />
+                  {c}
+                </span>
+              ))}
             </div>
-            <span className="profile-card__div" />
-            <div>
-              <b>{isJuan ? juan.onTime : `${Math.round(a.score * 0.98)}%`}</b>
-              <span>On-time</span>
+            <div className="rvf-profile__stats">
+              <div>
+                <b>{a.score}</b>
+                <span>Reliability Score</span>
+              </div>
+              <div>
+                <b>{isJuan ? juan.rating : (3.9 + a.score / 120).toFixed(2)}</b>
+                <span>Rating</span>
+              </div>
+              <div>
+                <b>{isJuan ? juan.onTime : `${Math.round(a.score * 0.98)}%`}</b>
+                <span>On-time</span>
+              </div>
             </div>
-          </div>
-          <motion.button type="button" className="pill-btn rv__profile-btn" whileTap={{ scale: 0.96 }} onClick={() => setProfile(true)}>
-            View Profile
-          </motion.button>
-        </motion.div>
+            <motion.button type="button" className="rvf-profile__btn" whileTap={{ scale: 0.96 }} onClick={() => setProfile(true)}>
+              View Profile
+            </motion.button>
+          </motion.div>
 
-        <div className="review">
-          <div className="review__head">
-            <p className="t-b1-semibold">Affordability</p>
+          <Section title="Affordability">
+            <Row k="Monthly income" v={peso(income)} />
+            <Row
+              k="Rent-to-income"
+              v={
+                <span className="ratio">
+                  <span className={`ratio__dot ${ratio >= 3 ? 'is-good' : 'is-warn'}`} />
+                  {ratio.toFixed(1)}x rent
+                </span>
+              }
+            />
+            <Row k="Employment" v={isJuan ? `${app.work.years}, ${app.work.employer.replace(' Inc.', '')}` : '1 year, private sector'} />
+          </Section>
+
+          <Section title="Tenancy details">
+            <Row k="Move-in date" v={isJuan ? app.moveIn.replace('September', 'Sept') : 'Oct 1, 2026'} />
+            <Row k="Occupants" v={isJuan ? app.about.occupants : '2 adults'} />
+            <Row k="Lease length" v="12 months" />
+          </Section>
+
+          <Section title="Documents">
+            {[
+              { t: "Driver's License", s: 'Verified Aug 5', icon: <Truck size={16} strokeWidth={2} color="#1e1e1e" /> },
+              { t: 'Payslip (3 months)', s: 'Uploaded Aug 5', icon: <FileText size={16} strokeWidth={2} color="#1e1e1e" /> },
+            ].map((d) => (
+              <div key={d.t}>
+                <hr className="rvf-card__div" />
+                <div className="rvf-doc">
+                  <span className="rvf-doc__icon">{d.icon}</span>
+                  <span className="rvf-doc__text">
+                    <b>{d.t}</b>
+                    <small>{d.s}</small>
+                  </span>
+                  <button type="button" className="rvf-doc__view" onClick={() => toast(`Opening ${d.t} · watermark applied`)}>
+                    View
+                  </button>
+                </div>
+              </div>
+            ))}
+          </Section>
+
+          <div className="rvf-message">
+            <p>Message from {first}</p>
+            <div className="rvf-message__box">{isJuan ? app.message : 'Hello! I’m interested in the loft and can move in next month.'}</div>
           </div>
-          {rows([
-            ['Monthly income', peso(income)],
-            [
-              'Rent-to-income',
-              <span className="ratio">
-                <span className={`ratio__dot ${ratio >= 3 ? 'is-good' : 'is-warn'}`} />
-                {ratio.toFixed(1)}x rent
-              </span>,
-            ],
-            ['Employment', isJuan ? `${app.work.years}, ${app.work.employer.replace(' Inc.', '')}` : '1 year, private sector'],
-          ])}
+
+          <AnimatePresence mode="wait" initial={false}>
+            {decided ? (
+              <motion.div key="decided" className={`decided decided--${status === 'Approved' ? 'good' : 'bad'}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                {status === 'Approved' ? '✓ You approved this applicant' : '✕ You declined this applicant'}
+                <button type="button" onClick={() => decide(a.id, 'In Review')}>
+                  Undo
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div key="actions" className="rvf-actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <motion.button type="button" className="decide-btn decide-btn--dark" whileTap={{ scale: 0.96 }} onClick={() => setConfirm('Denied')}>
+                  Decline
+                </motion.button>
+                <motion.button type="button" className="decide-btn" whileTap={{ scale: 0.96 }} onClick={() => setConfirm('Approved')}>
+                  Approve
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.button type="button" className="rvf-msg-btn" whileTap={{ scale: 0.98 }} onClick={() => nav.push('chatThread', { params: { name: a.name } })}>
+            Message {first} before deciding
+          </motion.button>
         </div>
-        <div className="review">
-          <div className="review__head">
-            <p className="t-b1-semibold">Tenancy details</p>
-          </div>
-          {rows([
-            ['Move-in date', isJuan ? app.moveIn.replace('September', 'Sept') : 'Oct 1, 2026'],
-            ['Occupants', isJuan ? app.about.occupants : '2 adults'],
-            ['Lease length', '12 months'],
-          ])}
-        </div>
-        <div className="review">
-          <div className="review__head">
-            <p className="t-b1-semibold">Documents</p>
-          </div>
-          {[
-            ["Driver's License", 'Verified Aug 5'],
-            ['Payslip (3 months)', 'Uploaded Aug 5'],
-          ].map(([t, s]) => (
-            <div key={t} className="doc-line">
-              <span className="doc-line__icon">{t.startsWith('Driver') ? '🪪' : '📄'}</span>
-              <span className="doc-line__text">
-                <b>{t}</b>
-                <small>{s}</small>
-              </span>
-              <button type="button" className="review__edit" onClick={() => toast(`Opening ${t} · watermark applied`)}>
-                View
-              </button>
-            </div>
-          ))}
-        </div>
-        <p className="t-b1 c-grey">Message from {a.name.split(' ')[0]}</p>
-        <div className="rv__message">{isJuan ? app.message : 'Hello! I’m interested in the loft and can move in next month.'}</div>
       </div>
 
       <ConfirmDialog
         open={!!confirm}
-        title={confirm === 'Approved' ? `Approve ${a.name.split(' ')[0]}?` : `Decline ${a.name.split(' ')[0]}?`}
+        title={confirm === 'Approved' ? `Approve ${first}?` : `Decline ${first}?`}
         body={confirm === 'Approved' ? 'They’ll be notified right away and the listing will be marked as pending move-in.' : 'They’ll get a kind note. This won’t affect their Reliability Score.'}
         confirmLabel={confirm === 'Approved' ? 'Approve' : 'Decline'}
         danger={confirm === 'Denied'}
@@ -745,13 +773,15 @@ export function ReviewApplicant() {
       <Overlay open={profile} onClose={() => setProfile(false)}>
         <div className="score-sheet">
           <p className="t-h2">Reliability breakdown</p>
-          <p className="t-b2 c-grey">How {a.name.split(' ')[0]}’s score of {a.score} is built</p>
+          <p className="t-b2 c-grey">
+            How {first}’s score of {a.score} is built
+          </p>
           {[
             ['On-time payments', isJuan ? 100 : a.score, '12 of 12 months'],
             ['Verified reviews', isJuan ? 95 : a.score - 6, '4.75 average · 8 reviews'],
             ['Identity & employment', 100, 'ID + employer confirmed'],
             ['Tenancy history', isJuan ? 100 : a.score - 10, 'No disputes'],
-          ].map(([k, v, s], i) => (
+          ].map(([k, v, sub], i) => (
             <div key={k as string} className="score-bar">
               <div className="score-bar__top">
                 <b>{k}</b>
@@ -760,7 +790,7 @@ export function ReviewApplicant() {
               <div className="score-bar__track">
                 <motion.span initial={{ width: 0 }} animate={{ width: `${v}%` }} transition={{ delay: 0.2 + i * 0.1, duration: 0.7, ease: spring }} />
               </div>
-              <small>{s}</small>
+              <small>{sub}</small>
             </div>
           ))}
           <Button onClick={() => setProfile(false)}>Done</Button>
