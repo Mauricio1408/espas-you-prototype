@@ -2,7 +2,7 @@
 
 A coded, case-study prototype of **Espas.you**, a trust-first rental app for the Philippines. Tenants build a **Tenant Reliability Score**; landlords review verified applicants. Built in React from the Figma hi-fi (`Espas.you V2`, page *Wireframe and Prototype*), so the motion, states and data that a static prototype can only fake behave for real here.
 
-**Live:** see the Vercel URL in the repo description · **Design:** [Figma file](https://www.figma.com/design/lPeEnqhDEuaoXA6W6Ot3Uq/Espas.you-V2?node-id=94-14)
+**Live:** [espas-you-prototype.vercel.app](https://espas-you-prototype.vercel.app) · **Design:** [Figma file](https://www.figma.com/design/lPeEnqhDEuaoXA6W6Ot3Uq/Espas.you-V2?node-id=94-14)
 
 ## What's in it
 
