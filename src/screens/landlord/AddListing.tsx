@@ -4,6 +4,8 @@ import { Camera, Minus, Plus, X } from 'react-feather';
 import { Screen } from '../../components/Chrome';
 import { Button, TitleBlock } from '../../components/Controls';
 import { toast } from '../../components/Feed';
+import { SuccessBadge } from '../../components/Success';
+import { emojiFor } from '../../data/emoji';
 import { CountUp, DateField, Dropdown } from '../../components/Inputs';
 import { peso, photos } from '../../data/mock';
 import { useNav, useParams } from '../../nav/Navigator';
@@ -36,7 +38,7 @@ function Options({ options, value, onChange, grid }: { options: string[]; value:
         const on = value.includes(o);
         return (
           <motion.button key={o} type="button" aria-pressed={on} className={`toggle-option ${on ? 'is-on' : ''}`} whileTap={{ scale: 0.95 }} onClick={() => onChange(on ? value.filter((x) => x !== o) : [...value, o])}>
-            {o}
+            {emojiFor(o)} {o}
           </motion.button>
         );
       })}
@@ -383,39 +385,41 @@ export function AddListing5() {
 export function AddListingPublished() {
   const nav = useNav<ScreenId>();
   const { d } = useDraft();
+  const cover = d.photos[0] ?? photos.studioWhite;
+  const rent = Number(d.rent.replace(/\D/g, '')) || 0;
   return (
-    <Screen>
-      <div className="al-done">
-        <motion.div className="al-done__check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.1 }}>
-          <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden>
-            <motion.path d="M20 6 9 17l-5-5" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.45, delay: 0.4 }} />
-          </svg>
-        </motion.div>
-        <motion.div className="al-done__text" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.5, ease: spring }}>
+    <Screen tone="light" backdrop={<div className="sent__hero approved__hero"><img src={cover} alt="" /></div>}>
+      <motion.button type="button" className="glass-round approved__back" whileTap={{ scale: 0.9 }} onClick={() => nav.reset(['landlordDashboard'], { transition: 'push' })} aria-label="Back to dashboard">
+        <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
+      </motion.button>
+      <SuccessBadge />
+      <div className="approved__body">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.5, ease: spring }}>
           <h1 className="t-title-3">Your listing is live!</h1>
-          <p className="t-h4-regular c-grey">
-            {d.title} is now visible to renters in {d.city}.
+          <p className="t-h4-regular c-grey approved__sub">
+            Visible now to <CountUp to={38} delay={0.6} duration={1.2} /> matching renters in {d.city}.
           </p>
         </motion.div>
-        <motion.div className="review" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.5, ease: spring }}>
-          <div className="review__row">
-            <span>Listing status</span>
-            <span className="al-active">
-              <i /> Active
-            </span>
+        <motion.div className="applying" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45, duration: 0.5, ease: spring }}>
+          <div className="applying__img">
+            <img src={cover} alt="" />
           </div>
-          <div className="review__row">
-            <span>Verified landlord badge</span>
-            <span>Applied</span>
-          </div>
-          <div className="review__row">
-            <span>Matching renters nearby</span>
-            <span>
-              <CountUp to={38} delay={0.6} duration={1.2} />
-            </span>
+          <div className="applying__info">
+            <p className="applying__kicker al-live">
+              <i /> Active · Verified landlord badge applied
+            </p>
+            <p className="t-b1-semibold c-primary applying__title">{d.title}</p>
+            <p className="applying__row">
+              <span className="t-b2-medium">{peso(rent)}/month</span>
+              <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
+              <span className="t-b2 c-grey">{d.occupants} Pax</span>
+            </p>
+            <p className="applying__row applying__row--small">
+              {d.type} · {d.utilities.length ? `${d.utilities.join(' & ')} included` : 'Utilities not included'}
+            </p>
           </div>
         </motion.div>
-        <motion.div className="sent__buttons" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 0.5, ease: spring }}>
+        <motion.div className="sent__buttons" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.5, ease: spring }}>
           <Button onClick={() => nav.push('viewListing', { params: { id: 'shiela-new' } })}>View listing</Button>
           <Button variant="secondary" className="btn--outline-light" onClick={() => nav.reset(['landlordDashboard'], { transition: 'push' })}>
             Back to dashboard

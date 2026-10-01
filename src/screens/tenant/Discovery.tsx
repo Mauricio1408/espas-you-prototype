@@ -3,7 +3,9 @@ import { useMemo, useRef, useState } from 'react';
 import { Screen } from '../../components/Chrome';
 import { Button, Switch } from '../../components/Controls';
 import { GlassHeart, ListingCard, TenantBottomNav, toast } from '../../components/Feed';
-import { Calendar, DateSheet, formatDate, Overlay } from '../../components/Inputs';
+import { SwipeGallery } from '../../components/SwipeGallery';
+import { emojiFor } from '../../data/emoji';
+import { Calendar, formatDate, Overlay } from '../../components/Inputs';
 import { feed, lifestyleChips, lifestyleMatch, listingById, mapPins, peso, photos, type Listing, type MapPin } from '../../data/mock';
 import { useNav, useParams } from '../../nav/Navigator';
 import { useStore } from '../../state/store';
@@ -190,7 +192,13 @@ function ListingSheet({ listing, onClose }: { listing: Listing; onClose: () => v
   const nav = useNav<ScreenId>();
   const gallery = listing.gallery ?? [listing.image, photos.aptWarmWood, photos.bathroom, photos.loftWindows];
   const [page, setPage] = useState(0);
-  const [viewing, setViewing] = useState(false);
+  const { state, update } = useStore();
+  const applied = state.application.status !== 'none' && state.application.listingId === listing.id;
+  const apply = () => {
+    if (applied) return nav.push('applicationStatus');
+    update((s) => ({ ...s, application: { ...s.application, listingId: listing.id } }));
+    nav.push('apply1');
+  };
   return (
     <motion.div
       className="lsheet"
@@ -204,21 +212,7 @@ function ListingSheet({ listing, onClose }: { listing: Listing; onClose: () => v
       onDragEnd={(_, i) => (i.offset.y > 110 || i.velocity.y > 500) && onClose()}
     >
       <div className="lsheet__gallery">
-        <motion.div
-          className="lsheet__track"
-          drag="x"
-          dragConstraints={{ left: -(gallery.length - 1) * 390, right: 0 }}
-          animate={{ x: -page * 390 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 34 }}
-          onDragEnd={(_, i) => {
-            if (i.offset.x < -60 && page < gallery.length - 1) setPage(page + 1);
-            else if (i.offset.x > 60 && page > 0) setPage(page - 1);
-          }}
-        >
-          {gallery.map((g) => (
-            <img key={g} src={g} alt="" draggable={false} />
-          ))}
-        </motion.div>
+        <SwipeGallery images={gallery} width={390} page={page} onPage={setPage} />
         <div className="lsheet__dots">
           {gallery.map((_, i) => (
             <motion.span key={i} animate={{ width: i === page ? 20 : 8, opacity: i === page ? 1 : 0.6 }} transition={{ duration: 0.25 }} />
@@ -272,20 +266,11 @@ function ListingSheet({ listing, onClose }: { listing: Listing; onClose: () => v
           <motion.button type="button" className="pill-btn" whileTap={{ scale: 0.96 }} onClick={() => nav.push('viewListing', { params: { id: listing.id } })}>
             View Details
           </motion.button>
-          <motion.button type="button" className="pill-btn pill-btn--primary" whileTap={{ scale: 0.96 }} onClick={() => setViewing(true)}>
-            Schedule Viewing
+          <motion.button type="button" className="pill-btn pill-btn--primary" whileTap={{ scale: 0.96 }} onClick={apply}>
+            {applied ? 'View application' : 'Apply now'}
           </motion.button>
         </div>
       </div>
-      <DateSheet
-        open={viewing}
-        initial={new Date(2026, 7, 14)}
-        onClose={() => setViewing(false)}
-        onPick={(d) => {
-          setViewing(false);
-          toast(`Viewing requested · ${formatDate(d).replace(/, \d{4}$/, '')}`);
-        }}
-      />
     </motion.div>
   );
 }
@@ -299,7 +284,7 @@ const VIBES = ['Near transit', 'City Center', 'Gym', 'Near Supermarket', 'Quiet'
 function ToggleOption({ label, on, onClick }: { label: string; on: boolean; onClick: () => void }) {
   return (
     <motion.button type="button" aria-pressed={on} className={`toggle-option ${on ? 'is-on' : ''}`} onClick={onClick} whileTap={{ scale: 0.95 }}>
-      {label}
+      {emojiFor(label)} {label}
     </motion.button>
   );
 }
@@ -334,7 +319,9 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
                   return (
                     <button key={t} type="button" role="tab" aria-selected={on} className={`seg-control__opt ${on ? 'is-on' : ''}`} onClick={() => setLater(i === 1)}>
                       {on && <motion.span layoutId="seg-control" className="seg-control__thumb" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
-                      <span className="seg-control__label">{t}</span>
+                      <span className="seg-control__label">
+                        {emojiFor(t)} {t}
+                      </span>
                     </button>
                   );
                 })}
@@ -477,18 +464,13 @@ export function ViewListing() {
     >
       <div className="vl" ref={scrollRef}>
         <div className="vl__hero">
-          <motion.div className="vl__track" style={{ scale: heroScale }} drag="x" dragConstraints={{ left: -(gallery.length - 1) * 440, right: 0 }} animate={{ x: -page * 440 }} transition={{ type: 'spring', stiffness: 300, damping: 34 }} onDragEnd={(_, i) => {
-            if (i.offset.x < -60 && page < gallery.length - 1) setPage(page + 1);
-            else if (i.offset.x > 60 && page > 0) setPage(page - 1);
-          }}>
-            {gallery.map((g) => (
-              <img key={g} src={g} alt="" draggable={false} />
-            ))}
+          <motion.div className="vl__track" style={{ scale: heroScale }}>
+            <SwipeGallery images={gallery} width={440} page={page} onPage={setPage} />
           </motion.div>
           <div className="vl__hero-tags">
             <span className="glass-tag">{listing.location.split(' in ')[0]}</span>
             <span className="glass-tag">
-              {page + 1} / {isHero ? 20 : gallery.length}
+              {isHero && page >= gallery.length / 2 ? 20 - (gallery.length - 1 - page) : page + 1} / {isHero ? 20 : gallery.length}
             </span>
           </div>
         </div>

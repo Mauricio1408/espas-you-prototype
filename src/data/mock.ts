@@ -332,6 +332,8 @@ export const threads: Thread[] = [
 export const landlordThreads: Thread[] = [
   { name: 'Juan Dela Cruz', property: 'Cozy Loft in Uptown Center', snippet: 'Is the unit still available for August?', time: '2 hours', avatar: avatars.juan, unread: true },
   { name: 'Mary Joy Santillan', property: 'Spacious Loft with Balcony', snippet: 'Can I bring my pet dog?', time: '4 days ago', avatar: avatars.maryJoy },
+  { name: 'Bryan Kieth', property: 'Cozy Loft in Uptown Center', snippet: 'Can I schedule a viewing this weekend?', time: '1 day ago', avatar: avatars.bryan, unread: true },
+  { name: 'Sofia Martinez', property: 'Cozy Loft in Uptown Center', snippet: 'Okay, thanks for considering me!', time: 'Oct 27', avatar: avatars.sofia },
 ];
 
 export type ApplicantStatus = 'In Review' | 'Denied' | 'Approved' | 'Pending';

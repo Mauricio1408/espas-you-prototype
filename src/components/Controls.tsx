@@ -232,3 +232,39 @@ export function Switch({ on, onChange, label }: { on: boolean; onChange: (v: boo
     </button>
   );
 }
+
+/** Contact number: Philippine flag + country code pill, then the local number. Used by every phone field. */
+export function PhoneField({ label = 'Contact No.', value, onChange, error }: { label?: string; value: string; onChange: (v: string) => void; error?: string | null }) {
+  return (
+    <label className="afield tappable">
+      <span className="afield__label">
+        <span className="t-b1">{label}</span>
+      </span>
+      <span className="phone-row">
+        <span className="afield__pill phone-row__cc">
+          <img className="phone-row__flag" src="/figma/flag-ph.svg" width={28} height={14} alt="Philippines" />
+          +63
+        </span>
+        <span className={`afield__pill phone-row__num ${error ? 'is-error' : ''}`}>
+          <input value={value} inputMode="tel" onChange={(e) => onChange(e.target.value.replace(/[^\d-]/g, '').slice(0, 12))} />
+        </span>
+      </span>
+      <AnimatePresence>
+        {error && (
+          <motion.span className="field__error" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+            {error}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </label>
+  );
+}
+
+/** Quiet text action under a primary CTA — the onboarding "Back" / "Skip" style. */
+export function TextAction({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
+  return (
+    <motion.button type="button" className="primary-skip__skip" whileTap={{ opacity: 0.5 }} onClick={onClick}>
+      {children}
+    </motion.button>
+  );
+}

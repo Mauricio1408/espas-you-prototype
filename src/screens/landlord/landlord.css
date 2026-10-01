@@ -28,29 +28,10 @@
   flex-direction: column;
   gap: 20px;
 }
-.phone-row {
-  display: flex;
-  gap: 8px;
-}
-.phone-row__cc {
-  flex: none;
-  width: 96px;
-  justify-content: center;
-  padding: 0 12px;
-  font: 500 20px/28px var(--font-display);
-}
-.phone-row__num {
-  flex: 1;
-}
 .ll-relations {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-.ll-relations__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
 }
 .ll-ids {
   display: flex;
@@ -250,7 +231,7 @@
   display: grid;
   place-items: center;
   background: #fff;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elevation-default);
 }
 .chip-dot {
   width: 8px;
@@ -588,7 +569,7 @@
 .rvf-listing.applying {
   width: 390px;
   margin-left: 25px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--stroke);
 }
 .rvf-stack {
   display: flex;
@@ -607,7 +588,7 @@
   padding: 28px 20px;
   border-radius: 20px;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--stroke);
 }
 .rvf-profile__avatar {
   width: 120px;
@@ -667,7 +648,7 @@
   height: 40px;
   border-radius: 1000px;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--stroke);
   font: 600 16px/1 var(--font-body);
   color: var(--neutral-500);
 }
@@ -678,7 +659,7 @@
   padding: 4px 0;
   border-radius: 16px;
   background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--stroke);
   overflow: hidden;
 }
 .rvf-card__head {
@@ -763,7 +744,170 @@
   height: 52px;
   margin-top: -20px;
   border-radius: 1000px;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--stroke);
   font: 400 16px/1 var(--font-body);
   color: var(--neutral-500);
+}
+
+/* ID scan: bigger viewfinder (Figma 2895:8601 is 216 tall), bigger hint, tighter buttons */
+.idscan__card {
+  top: 196px;
+}
+.viewfinder {
+  height: 216px;
+}
+.idscan__hint {
+  margin-top: 6px;
+  font: 400 15px/22px var(--font-body);
+  color: var(--text-grey);
+}
+.idscan__buttons {
+  gap: 8px;
+}
+.mock-id {
+  width: 240px;
+  height: 150px;
+}
+
+/* + is a true circle: the search takes the remaining width, the button never shrinks */
+.ldash__search {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+.ldash__add {
+  flex: none;
+  width: 60px;
+  height: 60px;
+  border: 1px solid var(--stroke);
+}
+.dash-section__head {
+  align-self: flex-start;
+  cursor: pointer;
+}
+
+/* ---------- Landlord Listings (WF 2290:1533) ---------- */
+.ll-addprop {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px 0 12px;
+  border-radius: 1000px;
+  background: var(--surface-primary);
+  box-shadow: 0 2px 6px rgba(243, 36, 32, 0.2);
+  font: 600 14px/1 var(--font-body);
+  color: #fff;
+}
+.llist {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 24px;
+}
+.llist__card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--surface-highlight);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--elevation-default);
+  text-align: left;
+  cursor: pointer;
+}
+.llist__img {
+  position: relative;
+  height: 180px;
+  background: var(--neutral-200);
+}
+.llist__img > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.llist__img .verified-glass {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+}
+.llist__img .llcard__more {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+}
+.llist__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+.llist__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.llist__title {
+  font: 600 16px/1.25 var(--font-body);
+  color: var(--text-black);
+}
+.llist__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: 400 12px/1.3 var(--font-body);
+  color: var(--text-grey);
+}
+.llist__status {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font: 600 11px/16px var(--font-body);
+}
+.llist__status--good {
+  background: var(--green-10);
+  color: var(--green-400);
+}
+.llist__status--warn {
+  background: var(--yellow-100);
+  color: var(--yellow-500);
+}
+.llist__status--new {
+  background: var(--red-10);
+  color: var(--red-300);
+}
+.llist__status--draft {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-black);
+}
+.llist__draft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 12px/1 var(--font-body);
+  color: var(--text-grey);
+}
+.llist__draft i {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+.llist__draft i span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--surface-primary);
+}
+.thread__score {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--red-10);
+  font: 600 11px/16px var(--font-body);
+  color: var(--red-300);
 }

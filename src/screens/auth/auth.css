@@ -61,10 +61,11 @@
   position: absolute;
   left: 24px;
   top: 72px;
+  bottom: 24px;
   width: 392px;
   display: flex;
   flex-direction: column;
-  gap: 180px;
+  justify-content: space-between;
 }
 .start__top {
   height: 480px;
@@ -175,7 +176,7 @@
 .auth-option--google {
   background: #fff;
   color: #1e1e1e;
-  border: 0.5px solid var(--neutral-350);
+  border: 1px solid var(--stroke);
   box-shadow: var(--elevation-raised);
 }
 .auth-option--facebook {
@@ -233,6 +234,7 @@
 .social-btn--google {
   background: #fff;
   border: 2px solid var(--stroke);
+  box-shadow: var(--elevation-default);
 }
 .social-btn--facebook {
   background: #5199f5;

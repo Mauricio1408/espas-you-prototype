@@ -43,7 +43,8 @@
   --surface-glass: var(--neutral-380);
   --surface-primary: var(--red-300);
   --surface-inverted: var(--neutral-500);
-  --stroke: var(--neutral-350);
+  /* Figma's 6% stroke disappears on white-on-#f5f5f5; 10% stays subtle but reads. */
+  --stroke: rgba(0, 0, 0, 0.1);
 
   /* Status (Figma binds primitives directly; Flutter names them) */
   --success: var(--green-400);
@@ -64,8 +65,8 @@
   --gutter: 20px;
 
   /* Effects */
-  --elevation-default: 0 0 20px rgba(0, 0, 0, 0.04);
-  --elevation-raised: 0 0 20px rgba(0, 0, 0, 0.08);
+  --elevation-default: 0 2px 12px rgba(0, 0, 0, 0.07);
+  --elevation-raised: 0 4px 22px rgba(0, 0, 0, 0.11);
 
   /* Type */
   --font-display: 'Mona Sans', 'Inter', system-ui, sans-serif;

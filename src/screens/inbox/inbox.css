@@ -31,7 +31,7 @@
   height: 40px;
   border-radius: 1000px;
   background: var(--neutral-50);
-  border: 0.455px solid var(--neutral-350);
+  border: 1px solid var(--stroke);
   flex: none;
 }
 
@@ -44,8 +44,8 @@
   padding: 9px 16px;
   border-radius: 1000px;
   background: var(--neutral-50);
-  border: 0.5px solid var(--neutral-350);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--elevation-default);
   font: 400 14px/normal var(--font-body);
   color: var(--text-black);
   transition: color 180ms ease-out;
@@ -80,7 +80,7 @@
   border-radius: 16px;
   background: var(--surface-highlight);
   border: 1px solid var(--neutral-350);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elevation-default);
   text-align: left;
   cursor: pointer;
 }

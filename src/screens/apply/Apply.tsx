@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Screen } from '../../components/Chrome';
-import { Button, ProgressBar, TitleBlock } from '../../components/Controls';
+import { Button, PhoneField, ProgressBar, TextAction, TitleBlock } from '../../components/Controls';
 import { toast } from '../../components/Feed';
+import { SuccessBadge } from '../../components/Success';
 import { DateField, Dropdown } from '../../components/Inputs';
 import { listingById, peso } from '../../data/mock';
 import { useNav, useParams } from '../../nav/Navigator';
@@ -98,6 +99,67 @@ function Field({ label, value, onChange, verified, prefix, inputMode, error }: {
   );
 }
 
+const TIERS = [
+  { key: 'tight', label: 'Tight', emoji: '⚠️', min: 0 },
+  { key: 'stretch', label: 'Stretch', emoji: '🤏', min: 2 },
+  { key: 'good', label: 'Comfortable', emoji: '✅', min: 3 },
+] as const;
+const SCALE = 5; // track runs 0× → 5× rent
+
+/**
+ * Affordability meter. Pattern from Mobbin: Redfin's affordability calculator (a zoned
+ * track with a knob and a named tier) + Realtor.com's Affordable / Stretch / Difficult pills.
+ */
+function Affordability({ income, rent }: { income: number; rent: number }) {
+  const ratio = income && rent ? income / rent : 0;
+  const tier = [...TIERS].reverse().find((t) => ratio >= t.min) ?? TIERS[0];
+  const pos = Math.min(ratio, SCALE) / SCALE;
+  const copy = {
+    good: 'You meet the 3× guideline most landlords look for.',
+    stretch: `Most landlords look for 3× rent (${peso(rent * 3)}). Your Reliability Score still counts in your favour.`,
+    tight: `Below the 2× minimum. Add a co-earner or pick a listing under ${peso(Math.floor(income / 3 / 100) * 100)}.`,
+  }[tier.key];
+  return (
+    <motion.div layout className={`afford afford--${tier.key}`}>
+      <div className="afford__head">
+        <span className="afford__kicker">Rent affordability</span>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span key={tier.key} className="afford__pill" initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.7, opacity: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 28 }}>
+            {tier.emoji} {tier.label}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+      <p className="afford__figure">
+        <motion.span key={ratio.toFixed(1)} className="afford__ratio" initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+          {income ? ratio.toFixed(1) : '—'}×
+        </motion.span>
+        <span className="afford__of">your monthly rent</span>
+      </p>
+      <div className="afford__track" role="meter" aria-valuemin={0} aria-valuemax={SCALE} aria-valuenow={Number(ratio.toFixed(1))} aria-label="Income to rent ratio">
+        {TIERS.map((t, i) => {
+          const from = t.min / SCALE;
+          const to = (TIERS[i + 1]?.min ?? SCALE) / SCALE;
+          return <span key={t.key} className={`afford__zone afford__zone--${t.key} ${t.key === tier.key ? 'is-on' : ''}`} style={{ left: `${from * 100}%`, width: `calc(${(to - from) * 100}% - 3px)` }} />;
+        })}
+        <motion.span className="afford__knob" initial={false} animate={{ left: `${pos * 100}%` }} transition={{ type: 'spring', stiffness: 220, damping: 22 }} />
+      </div>
+      <div className="afford__scale">
+        <span style={{ left: 0 }}>0×</span>
+        <span style={{ left: '40%' }}>2×</span>
+        <span className="is-guide" style={{ left: '60%' }}>3× guideline</span>
+        <span style={{ left: '100%' }}>5×</span>
+      </div>
+      <div className="afford__foot">
+        <img src="/figma/icon-shield.svg" width={22} height={22} alt="" />
+        <p className="t-b3">{copy}</p>
+      </div>
+      <p className="afford__math">
+        {peso(income)} income ÷ {peso(rent)} rent
+      </p>
+    </motion.div>
+  );
+}
+
 function StepButtons({ next = 'Next', onNext, disabled, busy }: { next?: string; onNext: () => void; disabled?: boolean; busy?: boolean }) {
   const nav = useNav();
   return (
@@ -105,9 +167,7 @@ function StepButtons({ next = 'Next', onNext, disabled, busy }: { next?: string;
       <Button onClick={onNext} disabled={disabled || busy}>
         {busy ? <span className="spinner" /> : next}
       </Button>
-      <Button className="btn--back" onClick={nav.back}>
-        Back
-      </Button>
+      <TextAction onClick={nav.back}>Back</TextAction>
     </div>
   );
 }
@@ -133,7 +193,7 @@ export function Apply1() {
       </motion.div>
       <motion.div className="apply__fields" {...rise(0.06)}>
         <Field label="Full name" value={a.name} onChange={set('name')} verified />
-        <Field label="Contact number" value={a.phone} onChange={set('phone')} inputMode="tel" error={phoneErr} />
+        <PhoneField label="Contact number" value={a.phone.replace(/^\+63\s?/, '')} onChange={(v) => set('phone')(`+63 ${v}`)} error={phoneErr} />
         <Field label="Email address" value={a.email} onChange={set('email')} inputMode="email" error={emailErr} />
         <Field label="Current Address" value={a.address} onChange={set('address')} />
         <Dropdown label="Occupants" options={['1 adult', '1 adult + pet', '2 adults', '2 adults + child']} value={a.occupants} onChange={set('occupants')} />
@@ -166,8 +226,6 @@ export function Apply2() {
   const [status, setStatus] = useState<string | null>('Employed');
   const rent = listingById(state.application.listingId).price;
   const income = toNumber(w.income);
-  const ratio = income / rent;
-  const meets = ratio >= 3;
 
   return (
     <ApplyFrame step={2}>
@@ -180,26 +238,7 @@ export function Apply2() {
         <Field label="Job title" value={w.jobTitle} onChange={(v) => setW({ ...w, jobTitle: v })} />
         <Field label="Monthly income" prefix="₱" value={w.income} inputMode="numeric" onChange={(v) => setW({ ...w, income: toNumber(v) ? toNumber(v).toLocaleString('en-PH') : '' })} />
         <Field label="Years employed" value={w.years} onChange={(v) => setW({ ...w, years: v })} />
-        <motion.div layout className={`income-card ${meets ? 'is-good' : 'is-warn'}`}>
-          <img src="/figma/icon-shield.svg" width={28} height={28} alt="" />
-          <div>
-            <p className="income-card__ratio">
-              <motion.span key={ratio.toFixed(1)} initial={{ y: 6, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-                {income ? `${ratio.toFixed(1)}×` : '—'}
-              </motion.span>{' '}
-              monthly rent
-            </p>
-            <p className="t-b3">
-              {meets
-                ? 'Your income meets the 3x monthly rent guideline most landlords look for.'
-                : `Most landlords look for 3× rent (${peso(rent * 3)}). Your Reliability Score still counts in your favour.`}
-            </p>
-          </div>
-          <div className="income-card__meter">
-            <motion.span animate={{ width: `${Math.min(100, (ratio / 4) * 100)}%` }} transition={{ type: 'spring', stiffness: 200, damping: 26 }} />
-            <i style={{ left: '75%' }} />
-          </div>
-        </motion.div>
+        <Affordability income={income} rent={rent} />
       </motion.div>
       <StepButtons
         next={review ? 'Save changes' : 'Next'}
@@ -423,12 +462,7 @@ export function Apply5() {
 
   return (
     <Screen tone="light" background="var(--surface-default)" backdrop={<div className="sent__hero"><img src={l.id === 'cozy-loft' ? '/figma/listing-hero.webp' : l.image} alt="" /></div>}>
-      <motion.div className="sent__check" initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 300, damping: 15, delay: 0.15 }}>
-        <span className="sent__pulse" />
-        <svg viewBox="0 0 24 24" width="78" height="78" aria-hidden>
-          <motion.path d="M20 6 9 17l-5-5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.45, delay: 0.45, ease: 'easeOut' }} />
-        </svg>
-      </motion.div>
+      <SuccessBadge />
       <div className="sent__body">
         <motion.div {...rise(0.35)}>
           <h1 className="t-title-3">Application sent!</h1>

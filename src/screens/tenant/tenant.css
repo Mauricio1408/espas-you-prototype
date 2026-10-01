@@ -206,7 +206,7 @@
   background: var(--surface-highlight);
   font: 600 16px/24px var(--font-body);
   color: var(--text-black);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elevation-default);
   white-space: nowrap;
 }
 .pill-btn--primary {
@@ -249,7 +249,7 @@
   padding: 16px 20px;
   border-radius: 100px;
   background: var(--surface-highlight);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elevation-default);
   text-align: left;
 }
 .dash-search__text {
@@ -274,7 +274,7 @@
   border-radius: 40px;
   border: 1px solid var(--neutral-300);
   background: var(--surface-default);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elevation-default);
   font: 400 16px/24px var(--font-body);
   color: var(--text-black);
   white-space: nowrap;
@@ -355,7 +355,7 @@
   padding: 8px 12px;
   border-radius: 20px;
   background: var(--surface-highlight);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elevation-default);
   font: 600 16px/24px var(--font-body);
   color: var(--text-black);
   white-space: nowrap;
@@ -369,7 +369,7 @@
 }
 .pin.is-inactive {
   background: var(--surface-default);
-  border: 0.5px solid var(--neutral-350);
+  border: 1px solid var(--stroke);
   color: var(--text-grey);
   text-decoration: line-through;
   cursor: default;
@@ -390,7 +390,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 24px;
-  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.04));
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.08));
 }
 .map-tool {
   position: relative;
@@ -1012,8 +1012,8 @@
   padding: 4px;
   border-radius: 40px;
   background: #fff;
-  border: 0.5px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--elevation-default);
   flex: none;
 }
 .seg-control__opt {
@@ -1046,7 +1046,7 @@
   border-radius: 1000px;
   background: #fff;
   border: 1px solid var(--neutral-200);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--elevation-default);
   font: 600 16px/1 var(--font-body);
   color: var(--neutral-500);
   white-space: nowrap;
@@ -1066,4 +1066,40 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+/* Card / Information List: even rhythm between status, title, price and meta
+   (Figma gaps 4 / 8 / 8 measured on trimmed text boxes). */
+.lcard__info {
+  gap: 6px;
+}
+.lcard__status,
+.noissue-tag {
+  padding-bottom: 0;
+  line-height: 16px;
+}
+.lcard__stack {
+  gap: 6px;
+}
+.lcard__info .lcard__title {
+  line-height: 20px;
+}
+.lcard__info .t-h4 {
+  line-height: 26px;
+}
+.lcard__meta,
+.lcard__rating {
+  line-height: 16px;
+}
+
+/* View Listing CTA: a touch larger */
+.action-bar__cta.pill-btn {
+  font-size: 18px;
+  line-height: 24px;
+}
+
+/* Galleries now host the looping SwipeGallery */
+.vl__track {
+  position: absolute;
+  inset: 0;
 }

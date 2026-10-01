@@ -4,6 +4,8 @@ import { ChevronsDown } from 'react-feather';
 import { Screen } from '../../components/Chrome';
 import { Button, Switch } from '../../components/Controls';
 import { TenantBottomNav, toast } from '../../components/Feed';
+import { SuccessBadge } from '../../components/Success';
+import { emojiFor } from '../../data/emoji';
 import { avatars, juan, landlordThreads, listingById, listings, peso, savedLabels, threads, type Listing } from '../../data/mock';
 import { useNav, useParams } from '../../nav/Navigator';
 import { seedConversation, useStore, type ChatMessage } from '../../state/store';
@@ -12,7 +14,7 @@ import './inbox.css';
 
 const spring = [0.32, 0.72, 0, 1] as const;
 
-function Header({ title, sub, actions }: { title: string; sub?: string; actions?: React.ReactNode }) {
+export function Header({ title, sub, actions }: { title: string; sub?: string; actions?: React.ReactNode }) {
   return (
     <div className="ih">
       <div className="ih__text">
@@ -30,7 +32,7 @@ function Header({ title, sub, actions }: { title: string; sub?: string; actions?
   );
 }
 
-function RoundIcon({ src, w, h, label, onClick }: { src: string; w: number; h: number; label: string; onClick?: () => void }) {
+export function RoundIcon({ src, w, h, label, onClick }: { src: string; w: number; h: number; label: string; onClick?: () => void }) {
   return (
     <motion.button type="button" className="round-icon" aria-label={label} whileTap={{ scale: 0.9 }} onClick={onClick}>
       <img src={src} width={w} height={h} alt="" />
@@ -38,13 +40,15 @@ function RoundIcon({ src, w, h, label, onClick }: { src: string; w: number; h: n
   );
 }
 
-function Tabs<T extends string>({ tabs, value, onChange, id }: { tabs: T[]; value: T; onChange: (t: T) => void; id: string }) {
+export function Tabs<T extends string>({ tabs, value, onChange, id }: { tabs: T[]; value: T; onChange: (t: T) => void; id: string }) {
   return (
     <div className="itabs" role="tablist">
       {tabs.map((t) => (
         <button key={t} type="button" role="tab" aria-selected={t === value} className={t === value ? 'is-on' : ''} onClick={() => onChange(t)}>
           {t === value && <motion.span layoutId={`itab-${id}`} className="itabs__thumb" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
-          <span>{t}</span>
+          <span>
+            {emojiFor(t)} {t}
+          </span>
         </button>
       ))}
     </div>
@@ -516,16 +520,7 @@ export function ApplicationStatus() {
         <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
       </motion.button>
       {approved ? (
-        <motion.img
-          className="approved__badge"
-          src="/figma/approved-badge.webp"
-          width={190}
-          height={190}
-          alt=""
-          initial={{ scale: 0, rotate: -120 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 220, damping: 13, delay: 0.15 }}
-        />
+        <SuccessBadge burst={false} />
       ) : (
         <motion.div className={`approved__pending ${declined ? 'is-declined' : ''}`} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}>
           {declined ? '✕' : <span className="approved__spinner" />}

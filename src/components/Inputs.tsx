@@ -131,7 +131,7 @@ export function DateField({ label, value, onChange, placeholder = 'mm/dd/yyyy' }
     <div className="labelled">
       <p className="t-b1 labelled__label">{label}</p>
       <motion.button type="button" className="select-pill" onClick={() => setOpen(true)} whileTap={{ scale: 0.98 }}>
-        <span className={`t-h4 ${value ? '' : ''}`}>{value ?? placeholder}</span>
+        <span className={value ? '' : 'c-grey'}>{value ?? placeholder}</span>
         <img src="/figma/icon-calendar.svg" width={24} height={24} alt="" />
       </motion.button>
       <DateSheet
@@ -289,7 +289,7 @@ export function Dropdown({ label, options, value, onChange }: { label: string; o
     <div className="labelled">
       <p className="t-b1 labelled__label">{label}</p>
       <motion.button type="button" className="select-pill" aria-expanded={open} onClick={() => setOpen((o) => !o)} whileTap={{ scale: 0.98 }}>
-        <span className="t-h4">{value ?? 'Choose from the options'}</span>
+        <span className={value ? '' : 'c-grey'}>{value ?? 'Choose from the options'}</span>
         <motion.img src="/figma/icon-chevron-down.svg" width={24} height={24} alt="" animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.25, ease: spring }} />
       </motion.button>
       <AnimatePresence initial={false}>

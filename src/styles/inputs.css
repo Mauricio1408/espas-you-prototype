@@ -81,7 +81,7 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.04));
+  /* shadow lives on the pill itself */
 }
 .labelled__label {
   color: var(--text-black);
@@ -95,8 +95,14 @@
   padding: 0 24px;
   border-radius: var(--radius-full);
   background: var(--surface-highlight);
+  border: 2px solid var(--stroke);
+  box-shadow: var(--elevation-default);
   text-align: left;
   color: var(--text-black);
+}
+/* Every input value uses one style: Mona Sans Medium 20/28. */
+.select-pill > span {
+  font: 500 20px/28px var(--font-display);
 }
 .dropdown__options {
   display: flex;

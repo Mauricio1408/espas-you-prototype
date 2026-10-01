@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450" width="900" height="450">
+  <rect width="900" height="225" fill="#0038A8"/>
+  <rect y="225" width="900" height="225" fill="#CE1126"/>
+  <path d="M0 0 L389.7 225 L0 450 Z" fill="#FFFFFF"/>
+  <g fill="#FCD116" transform="translate(130 225)">
+    <circle r="36"/>
+    <g id="ray">
+      <path d="M0 -44 L7 -80 L0 -96 L-7 -80 Z"/>
+    </g>
+    <use href="#ray" transform="rotate(45)"/>
+    <use href="#ray" transform="rotate(90)"/>
+    <use href="#ray" transform="rotate(135)"/>
+    <use href="#ray" transform="rotate(180)"/>
+    <use href="#ray" transform="rotate(225)"/>
+    <use href="#ray" transform="rotate(270)"/>
+    <use href="#ray" transform="rotate(315)"/>
+  </g>
+  <g fill="#FCD116">
+    <path id="star" d="M0 -22 L5.2 -7.1 L20.9 -6.8 L8.4 2.7 L12.9 17.8 L0 8.9 L-12.9 17.8 L-8.4 2.7 L-20.9 -6.8 L-5.2 -7.1 Z" transform="translate(34 40)"/>
+    <path d="M0 -22 L5.2 -7.1 L20.9 -6.8 L8.4 2.7 L12.9 17.8 L0 8.9 L-12.9 17.8 L-8.4 2.7 L-20.9 -6.8 L-5.2 -7.1 Z" transform="translate(34 410)"/>
+    <path d="M0 -22 L5.2 -7.1 L20.9 -6.8 L8.4 2.7 L12.9 17.8 L0 8.9 L-12.9 17.8 L-8.4 2.7 L-20.9 -6.8 L-5.2 -7.1 Z" transform="translate(345 225)"/>
+  </g>
+</svg>

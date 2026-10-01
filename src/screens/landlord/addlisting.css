@@ -198,3 +198,17 @@
   flex-direction: column;
   gap: 12px;
 }
+
+.al-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green-400) !important;
+}
+.al-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green-300);
+  box-shadow: 0 0 0 3px rgba(0, 187, 137, 0.2);
+}

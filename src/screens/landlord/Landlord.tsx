@@ -2,16 +2,18 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, Camera, FileText, Grid, Home, MessageCircle, Truck } from 'react-feather';
 import { Screen } from '../../components/Chrome';
-import { BackLink, Button, PrimaryWithSkip, ProgressBar, RadioCard, TitleBlock } from '../../components/Controls';
+import { BackLink, Button, PhoneField, PrimaryWithSkip, ProgressBar, RadioCard, TitleBlock } from '../../components/Controls';
 import { ratingShort, toast } from '../../components/Feed';
 import { Overlay } from '../../components/Inputs';
+import { SuccessBadge } from '../../components/Success';
+import { emojiFor } from '../../data/emoji';
 import { applicants, juan, landlordListings, landlordThreads, listings, peso, type ApplicantStatus } from '../../data/mock';
 import { Portal, useNav, useParams } from '../../nav/Navigator';
 import { draftToListing, initialDraft, useStore } from '../../state/store';
 import { NotificationsStep, ReliabilityScore, rise } from '../onboarding/Onboarding';
 import type { ScreenId } from '../registry';
 import '../apply/apply.css';
-import { conversationPreview } from '../inbox/Inbox';
+import { conversationPreview, Header, RoundIcon, Tabs } from '../inbox/Inbox';
 import '../inbox/inbox.css';
 import './landlord.css';
 
@@ -47,22 +49,6 @@ export function LField({ label, value, onChange, inputMode }: { label: string; v
       </span>
       <span className="afield__pill">
         <input value={value} onChange={(e) => onChange(e.target.value)} inputMode={inputMode} />
-      </span>
-    </label>
-  );
-}
-
-function PhoneField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  return (
-    <label className="afield tappable">
-      <span className="afield__label">
-        <span className="t-b1">Contact No.</span>
-      </span>
-      <span className="phone-row">
-        <span className="afield__pill phone-row__cc">🇵🇭 +63</span>
-        <span className="afield__pill phone-row__num">
-          <input value={value} inputMode="tel" onChange={(e) => onChange(e.target.value.replace(/[^\d-]/g, '').slice(0, 12))} />
-        </span>
       </span>
     </label>
   );
@@ -138,12 +124,18 @@ export function LandlordEmergency() {
         <LField label="Address" value={address} onChange={setAddress} />
         <div className="ll-relations">
           <span className="t-b1">Relationship</span>
-          <div className="ll-relations__chips">
-            {['Spouse', 'Parent', 'Sibling', 'Friend'].map((r) => (
-              <motion.button key={r} type="button" className={`toggle-chip ${relation === r ? 'is-on' : ''}`} onClick={() => setRelation(r)} whileTap={{ scale: 0.94 }}>
-                {r}
-              </motion.button>
-            ))}
+          <div className="prefs__chips" role="radiogroup">
+            {['Spouse', 'Parent', 'Sibling', 'Friend'].map((r) => {
+              const on = relation === r;
+              return (
+                <motion.button key={r} type="button" role="radio" aria-checked={on} className={`pref-chip ${on ? 'is-on' : ''}`} onClick={() => setRelation(r)} whileTap={{ scale: 0.94 }}>
+                  <span>
+                    {emojiFor(r)} {r}
+                  </span>
+                  <motion.img src={on ? '/figma/icon-x-white.svg' : '/figma/icon-plus.svg'} key={on ? 'x' : 'plus'} width={24} height={24} alt="" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} transition={{ duration: 0.25, ease: spring }} />
+                </motion.button>
+              );
+            })}
           </div>
         </div>
       </motion.div>
@@ -262,7 +254,7 @@ function IdScanModal({ side, idType, onClose, onCaptured }: { side: null | 'fron
                   <p className="t-b1-semibold">
                     Scan the {side} of your {idType}
                   </p>
-                  <p className="t-b3 c-grey">{side === 'front' ? 'Position your document, picture side up, inside the frame.' : 'Flip it over — make sure the barcode is visible.'}</p>
+                  <p className="idscan__hint">{side === 'front' ? 'Position your document, picture side up, inside the frame.' : 'Flip it over — make sure the barcode is visible.'}</p>
                 </motion.div>
               </AnimatePresence>
               <div className={`viewfinder is-${phase}`}>
@@ -272,7 +264,7 @@ function IdScanModal({ side, idType, onClose, onCaptured }: { side: null | 'fron
                 <AnimatePresence mode="wait">
                   {phase === 'idle' && (
                     <motion.span key="cam" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <Camera size={40} color="#575757" strokeWidth={1.5} />
+                      <Camera size={52} color="#8a8a8a" strokeWidth={1.5} />
                     </motion.span>
                   )}
                   {phase !== 'idle' && (
@@ -338,9 +330,11 @@ export function TrustedTenants() {
 /* Landlord / Dashboard                                                */
 /* ------------------------------------------------------------------ */
 
+export const occupied = (id: string) => id !== 'cozy-loft' && id !== 'shiela-new';
+
 const statusTone: Record<ApplicantStatus, string> = { 'In Review': 'warn', Pending: 'neutral', Approved: 'good', Denied: 'bad' };
 
-type LTab = 'home' | 'listings' | 'messages' | 'account';
+export type LTab = 'home' | 'listings' | 'messages' | 'account';
 
 export function LandlordDashboard() {
   const nav = useNav<ScreenId>();
@@ -349,11 +343,9 @@ export function LandlordDashboard() {
   const [query, setQuery] = useState('');
   const [tab, setTab] = useState<LTab>('home');
   const scrollRef = useRef<HTMLDivElement>(null);
-  const refs = { listings: useRef<HTMLDivElement>(null), messages: useRef<HTMLDivElement>(null) };
   const decisions = state.landlord.decisions;
   const juanNew = state.application.status === 'submitted' && decisions.juan === 'In Review';
 
-  const occupied = (id: string) => id !== 'cozy-loft' && id !== 'shiela-new';
   const mine = state.draft.published ? [draftToListing(state.draft), ...landlordListings] : landlordListings;
   const shownListings = mine.filter((l) => {
     if (query && !l.title.toLowerCase().includes(query.toLowerCase())) return false;
@@ -370,7 +362,7 @@ export function LandlordDashboard() {
     setTab(t);
     if (t === 'home') scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     else if (t === 'account') toast('Signed in as Shiela Mae Smith · Verified Landlord');
-    else refs[t].current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else nav.reset([tabScreen[t]], { transition: 'smart' });
   };
 
   return (
@@ -412,11 +404,11 @@ export function LandlordDashboard() {
           </div>
         </div>
 
-        <section className="dash-section" ref={refs.listings}>
-          <div className="dash-section__head">
+        <section className="dash-section">
+          <button type="button" className="dash-section__head" onClick={() => goTab('listings')}>
             <span className="t-h4">Your Listings</span>
             <img src="/figma/icon-chevron-right-18.svg" width={18} height={18} alt="" />
-          </div>
+          </button>
           <div className="dash-section__list scroll-x" style={{ minHeight: 272 }}>
             <AnimatePresence mode="popLayout" initial={false}>
               {shownListings.map((l, i) => (
@@ -525,13 +517,13 @@ export function LandlordDashboard() {
           </div>
         </section>
 
-        <section className="dash-section ldash__section" ref={refs.messages}>
-          <div className="dash-section__head">
+        <section className="dash-section ldash__section">
+          <button type="button" className="dash-section__head" onClick={() => goTab('messages')}>
             <span className="t-h4">Messages</span>
             <img src="/figma/icon-chevron-right-18.svg" width={18} height={18} alt="" />
-          </div>
+          </button>
           <div className="apps">
-            {landlordThreads.map((x) => (x.name === 'Juan Dela Cruz' ? { ...x, ...conversationPreview(state.conversation, 'shiela') } : x)).map((t) => (
+            {landlordThreads.slice(0, 2).map((x) => (x.name === 'Juan Dela Cruz' ? { ...x, ...conversationPreview(state.conversation, 'shiela') } : x)).map((t) => (
               <motion.button key={t.name} type="button" className="app-row" whileTap={{ scale: 0.98 }} onClick={() => nav.push('chatThread', { params: { name: t.name } })}>
                 <span className="thread__avatar">
                   <img src={t.avatar} alt="" />
@@ -555,7 +547,17 @@ export function LandlordDashboard() {
   );
 }
 
-function LandlordBottomNav({ active, onPick }: { active: LTab; onPick: (t: LTab) => void }) {
+const tabScreen: Record<Exclude<LTab, 'account'>, ScreenId> = { home: 'landlordDashboard', listings: 'landlordListings', messages: 'landlordMessages' };
+
+export function LandlordBottomNav({ active, onPick }: { active: LTab; onPick?: (t: LTab) => void }) {
+  const nav = useNav<ScreenId>();
+  const pick =
+    onPick ??
+    ((t: LTab) => {
+      if (t === active) return;
+      if (t === 'account') toast('Signed in as Shiela Mae Smith · Verified Landlord');
+      else nav.reset([tabScreen[t]], { transition: 'smart' });
+    });
   const items: { tab: LTab; label: string; icon: ReactNode; badge?: number }[] = [
     { tab: 'home', label: 'Home', icon: <Home size={24} strokeWidth={2} /> },
     { tab: 'listings', label: 'Listings', icon: <Grid size={24} strokeWidth={2} />, badge: 4 },
@@ -565,13 +567,215 @@ function LandlordBottomNav({ active, onPick }: { active: LTab; onPick: (t: LTab)
   return (
     <nav className="bnav">
       {items.map((it) => (
-        <motion.button key={it.tab} type="button" className={`bnav__item ${active === it.tab ? 'is-active' : ''}`} onClick={() => onPick(it.tab)} whileTap={{ scale: 0.9 }}>
+        <motion.button key={it.tab} type="button" className={`bnav__item ${active === it.tab ? 'is-active' : ''}`} onClick={() => pick(it.tab)} whileTap={{ scale: 0.9 }}>
           <span className="bnav__icon">{it.icon}</span>
           <span className="t-b2">{it.label}</span>
           {it.badge && <span className="bnav__badge">{it.badge}</span>}
         </motion.button>
       ))}
     </nav>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Landlord — Listings and Messages (WF 2290:1533, 2293:3134)          */
+/* ------------------------------------------------------------------ */
+
+type ListTab = 'All' | 'Available Now' | 'Drafts';
+
+export function LandlordListings() {
+  const nav = useNav<ScreenId>();
+  const { state, update } = useStore();
+  const [tab, setTab] = useState<ListTab>('All');
+  const d = state.draft;
+  const mine = d.published ? [draftToListing(d), ...landlordListings] : landlordListings;
+  const waiting = applicants.filter((a) => (state.landlord.decisions[a.id] ?? a.status) === 'In Review' || a.status === 'Pending').length;
+  const rows = tab === 'Drafts' ? [] : mine.filter((l) => tab === 'All' || !occupied(l.id));
+  const showDraft = !d.published && (tab === 'Drafts' || tab === 'All');
+  const draftSteps = [d.title && d.address, d.bedrooms, d.photos.length, d.rent, false].filter(Boolean).length;
+  const addProperty = () => {
+    if (d.published) update((s) => ({ ...s, draft: { ...initialDraft, title: '', photos: [] } }));
+    nav.push('addListing1');
+  };
+  const sub = `${mine.length} ${mine.length === 1 ? 'property' : 'properties'} · ${waiting} awaiting review`;
+
+  return (
+    <Screen footer={<LandlordBottomNav active="listings" />}>
+      <div className="scroll inbox">
+        <Header
+          title="Listed Properties"
+          sub={sub}
+          actions={
+            <motion.button type="button" className="ll-addprop" whileTap={{ scale: 0.94 }} onClick={addProperty}>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+                <path d="M12 5v14M5 12h14" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
+              </svg>
+              Add property
+            </motion.button>
+          }
+        />
+        <Tabs id="llist" tabs={['All', 'Available Now', 'Drafts'] as ListTab[]} value={tab} onChange={setTab} />
+        <div className="llist">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {showDraft && (
+              <motion.div layout key="draft" className="llist__card" role="button" tabIndex={0} onClick={() => nav.push('addListing1')} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4, ease: spring }} whileTap={{ scale: 0.98 }}>
+                <div className="llist__img">
+                  <img src={d.photos[0] ?? '/figma/listing-hero.webp'} alt="" style={{ filter: 'grayscale(0.4)' }} />
+                  <span className="verified-glass">
+                    <span>✏️ Draft</span>
+                  </span>
+                </div>
+                <div className="llist__body">
+                  <div className="llist__top">
+                    <p className="llist__title">{d.title || 'Untitled listing'}</p>
+                    <span className="llist__status llist__status--draft">Draft</span>
+                  </div>
+                  <p className="t-h4">{d.rent ? `₱${d.rent}` : '₱—'} / month</p>
+                  <div className="llist__draft">
+                    <i>
+                      <motion.span initial={{ width: 0 }} animate={{ width: `${(draftSteps / 5) * 100}%` }} transition={{ duration: 0.6, ease: spring, delay: 0.2 }} />
+                    </i>
+                    {draftSteps} of 5 steps · Continue
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            {rows.map((l, i) => {
+              const isNew = l.id === 'shiela-new';
+              const occ = occupied(l.id);
+              const status = isNew ? { cls: 'new', label: 'New · Vacant' } : occ ? { cls: 'good', label: 'Occupied' } : { cls: 'warn', label: `${applicants.length} applicants` };
+              return (
+                <motion.div
+                  layout
+                  key={l.id}
+                  className="llist__card"
+                  role="button"
+                  tabIndex={0}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4, ease: spring, delay: i * 0.05 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => (isNew ? nav.push('viewListing', { params: { id: l.id } }) : occ ? toast(`${l.title} is occupied · rent on track`) : nav.push('reviewApplicant', { params: { id: 'juan' } }))}
+                >
+                  <div className="llist__img">
+                    <img src={l.id === 'cozy-loft' ? '/figma/listing-hero.webp' : l.image} alt="" loading="lazy" />
+                    <span className="verified-glass">
+                      {isNew ? (
+                        <span>✨ Just published</span>
+                      ) : occ ? (
+                        <span>🔑 Tenant since Mar</span>
+                      ) : (
+                        <>
+                          <img src={juan.avatar} width={20} height={20} alt="" />
+                          <span className="applicants-count">+{applicants.length - 1}</span>
+                          <span>Applicants</span>
+                        </>
+                      )}
+                    </span>
+                    <span className="glass-btn llcard__more">•••</span>
+                  </div>
+                  <div className="llist__body">
+                    <div className="llist__top">
+                      <p className="llist__title">{l.id === 'cozy-loft' ? 'Cozy Loft in Uptown Center' : l.title}</p>
+                      <span className={`llist__status llist__status--${status.cls}`}>{status.label}</span>
+                    </div>
+                    <p className="t-h4">{peso(l.price)} / month</p>
+                    <div className="llist__row">
+                      <span>{l.inclusion}</span>
+                      <span className="lcard__rating">
+                        {ratingShort(l.rating)}
+                        <img src="/figma/icon-star-12.svg" width={12} height={12} alt="" />
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+          {!showDraft && rows.length === 0 && <p className="t-b2 c-grey empty-line">No drafts — tap Add property to start one.</p>}
+        </div>
+      </div>
+    </Screen>
+  );
+}
+
+type LMsgTab = 'All' | 'Unread' | 'Applications';
+
+export function LandlordMessages() {
+  const nav = useNav<ScreenId>();
+  const { state } = useStore();
+  const [tab, setTab] = useState<LMsgTab>('All');
+  const [read, setRead] = useState<string[]>([]);
+  const [query, setQuery] = useState<string | null>(null);
+  const scoreOf = (name: string) => applicants.find((a) => a.name === name)?.score;
+  const list = landlordThreads
+    .map((t) => (t.name === 'Juan Dela Cruz' ? { ...t, ...conversationPreview(state.conversation, 'shiela') } : t))
+    .filter((t) => (tab === 'Unread' ? t.unread && !read.includes(t.name) : tab === 'Applications' ? t.property === 'Cozy Loft in Uptown Center' : true))
+    .filter((t) => !query || t.name.toLowerCase().includes(query.toLowerCase()));
+
+  return (
+    <Screen footer={<LandlordBottomNav active="messages" />}>
+      <div className="scroll inbox">
+        <Header title="Messages" actions={<RoundIcon src="/figma/icon-search-18.svg" w={20} h={20} label="Search" onClick={() => setQuery((q) => (q === null ? '' : null))} />} />
+        <AnimatePresence initial={false}>
+          {query !== null && (
+            <motion.input
+              autoFocus
+              className="msg-search"
+              placeholder="Search tenants and applicants"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              initial={{ height: 0, opacity: 0, marginTop: -24 }}
+              animate={{ height: 44, opacity: 1, marginTop: 0 }}
+              exit={{ height: 0, opacity: 0, marginTop: -24 }}
+            />
+          )}
+        </AnimatePresence>
+        <Tabs id="lmsg" tabs={['All', 'Unread', 'Applications'] as LMsgTab[]} value={tab} onChange={setTab} />
+        <div className="threads">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {list.map((t, i) => {
+              const unread = t.unread && !read.includes(t.name);
+              const score = scoreOf(t.name);
+              return (
+                <motion.button
+                  layout
+                  key={t.name}
+                  type="button"
+                  className="thread"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.3, delay: i * 0.04 }}
+                  onClick={() => {
+                    setRead((r) => [...r, t.name]);
+                    nav.push('chatThread', { params: { name: t.name } });
+                  }}
+                >
+                  <span className="thread__avatar">
+                    <img src={t.avatar} alt="" />
+                  </span>
+                  <span className="thread__body">
+                    <span className="thread__top">
+                      <b>{t.name}</b>
+                      {score && <span className="thread__score">{score}</span>}
+                    </span>
+                    <span className="thread__prop">{t.property}</span>
+                    <span className={`thread__snippet ${unread ? 'is-unread' : ''}`}>{t.snippet}</span>
+                  </span>
+                  <span className="thread__meta">
+                    <span>{t.time}</span>
+                    {unread && <motion.span className="thread__dot" layoutId={`ldot-${t.name}`} />}
+                  </span>
+                </motion.button>
+              );
+            })}
+          </AnimatePresence>
+          {list.length === 0 && <p className="t-b2 c-grey empty-line">No conversations here.</p>}
+        </div>
+      </div>
+    </Screen>
   );
 }
 
@@ -847,7 +1051,7 @@ export function LandlordApproved() {
         <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
       </motion.button>
       {approved ? (
-        <motion.img className="approved__badge" src="/figma/approved-badge.webp" width={190} height={190} alt="" initial={{ scale: 0, rotate: -120 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 220, damping: 13, delay: 0.15 }} />
+        <SuccessBadge />
       ) : (
         <motion.div className="approved__pending is-declined" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}>
           ✕
