@@ -1,0 +1,323 @@
+.shell {
+  display: grid;
+  grid-template-columns: clamp(300px, 30vw, 380px) 1fr;
+  height: 100vh;
+  height: 100dvh;
+  background:
+    radial-gradient(1200px 800px at 75% 30%, #fff8e8 0%, transparent 60%),
+    linear-gradient(180deg, #f3eee2 0%, #e9e3d4 100%);
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+.phone {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+  border-radius: 0;
+}
+.phone--bezel {
+  padding: 14px;
+  border-radius: 68px;
+  background: #121212;
+  box-shadow:
+    0 0 0 2px #2c2c2c inset,
+    0 50px 100px -20px rgba(60, 40, 10, 0.35),
+    0 30px 60px -30px rgba(0, 0, 0, 0.5);
+}
+.phone--bezel .device {
+  border-radius: 54px;
+  transform: translateZ(0);
+}
+
+/* ---------- Panel ---------- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 28px 24px 24px;
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(20px);
+  scrollbar-width: thin;
+}
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.panel__kicker {
+  margin-top: 4px;
+  font: 500 12px/1 var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-grey);
+}
+.panel__lede {
+  font: 400 14px/1.55 var(--font-body);
+  color: #3d3d3d;
+}
+.panel__card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+.panel__label {
+  font: 600 11px/1 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light-grey);
+}
+.panel__title {
+  font: 600 22px/1.2 var(--font-display);
+}
+.panel__meta {
+  margin-top: 4px;
+  font: 500 12px/1.4 var(--font-body);
+  color: var(--text-grey);
+}
+.panel__meta a,
+.panel__foot a {
+  color: var(--text-link);
+  text-decoration: none;
+}
+.panel__meta a:hover,
+.panel__foot a:hover {
+  text-decoration: underline;
+}
+.panel__note {
+  margin-top: 8px;
+  font: 400 13px/1.5 var(--font-body);
+  color: #444;
+}
+.panel__hint {
+  font: 400 12px/1.5 var(--font-body);
+  color: var(--text-grey);
+}
+.panel__actions {
+  display: flex;
+  gap: 8px;
+}
+.ghost-btn {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--surface-default);
+  font: 600 13px/1 var(--font-body);
+  color: var(--text-black);
+  white-space: nowrap;
+  transition: background-color 120ms ease-out;
+}
+.ghost-btn:hover:not(:disabled) {
+  background: #ebebeb;
+}
+.ghost-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.ghost-btn--quiet {
+  flex: none;
+  align-self: flex-start;
+  height: 30px;
+  font-weight: 500;
+  color: var(--text-grey);
+}
+
+.segmented {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.06);
+}
+.segmented button {
+  position: relative;
+  height: 38px;
+  border-radius: 10px;
+  font: 600 14px/1 var(--font-body);
+  color: var(--text-grey);
+  transition: color 160ms ease-out;
+}
+.segmented button.is-active {
+  color: var(--surface-primary);
+}
+.segmented button span {
+  position: relative;
+  z-index: 1;
+}
+.segmented__thumb {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.state-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.state-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font: 500 13px/1.3 var(--font-body);
+}
+.state-list dt {
+  color: var(--text-grey);
+}
+.state-list dd {
+  margin: 0;
+  text-align: right;
+}
+.state-pill {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-default);
+}
+.state-pill--submitted {
+  background: var(--warning-tint);
+  color: var(--warning);
+}
+.state-pill--approved {
+  background: var(--success-tint);
+  color: var(--success);
+}
+.state-pill--declined {
+  background: var(--primary-tint);
+  color: var(--red-300);
+}
+
+.panel__card--index {
+  gap: 4px;
+}
+.index-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+.index-group__title {
+  margin-bottom: 4px;
+  font: 600 12px/1 var(--font-body);
+  color: var(--text-black);
+}
+.index-item {
+  position: relative;
+  padding: 6px 10px 6px 18px;
+  border-radius: 8px;
+  text-align: left;
+  font: 500 13px/1.2 var(--font-body);
+  color: var(--text-grey);
+  transition: background-color 120ms ease-out, color 120ms ease-out;
+}
+.index-item:hover {
+  background: var(--surface-default);
+  color: var(--text-black);
+}
+.index-item.is-current {
+  color: var(--surface-primary);
+  background: var(--primary-tint);
+}
+.index-item__dot {
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  margin-top: -2.5px;
+  border-radius: 50%;
+  background: var(--surface-primary);
+}
+
+.spec {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font: 400 13px/1.3 var(--font-body);
+}
+.spec b {
+  font-weight: 600;
+}
+.spec span {
+  color: var(--text-light-grey);
+}
+
+.panel__foot {
+  display: flex;
+  gap: 16px;
+  padding: 4px 4px 0;
+  font: 600 13px/1 var(--font-body);
+}
+
+/* ---------- Mobile ---------- */
+
+.shell--mobile {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
+.shell--mobile .stage {
+  position: absolute;
+  inset: 0;
+}
+.drawer-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 8px 12px 10px;
+  border-radius: 12px 0 0 12px;
+  background: rgba(30, 30, 30, 0.55);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+.drawer-tab span {
+  width: 12px;
+  height: 2px;
+  border-radius: 1px;
+  background: #fff;
+}
+.drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 110;
+}
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 92vw);
+  z-index: 120;
+  background: #f7f4ec;
+}
+.drawer .panel {
+  border-right: 0;
+}

@@ -1,0 +1,252 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-black);
+  background: #ece8de;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  display: block;
+  max-width: none;
+}
+
+p,
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--surface-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Device canvas: every screen is authored at 440 × 950 ---------- */
+
+.device {
+  position: relative;
+  width: 440px;
+  height: 950px;
+  overflow: hidden;
+  background: var(--surface-default);
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.device input,
+.device textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.nav-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.nav-layer {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+  background: var(--surface-default);
+  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.08);
+}
+
+.layer-root {
+  position: absolute;
+  inset: 0;
+}
+
+.nav-shade {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 50;
+}
+
+/* Prototype hotspot hint — clicking dead space flashes what is tappable,
+   exactly like Figma's presentation mode. */
+.device.hint :is(button, a, [role='button'], input, textarea, label.tappable):not(:disabled) {
+  box-shadow: 0 0 0 2px rgba(13, 153, 255, 0.55), inset 0 0 0 999px rgba(13, 153, 255, 0.14) !important;
+  transition: box-shadow 120ms ease-out;
+}
+
+/* ---------- Screen scaffolding ---------- */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-default);
+}
+
+.screen__body {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.status-bar {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  height: 60px;
+  flex: 0 0 60px;
+  align-items: center;
+  justify-content: space-between;
+}
+.status-bar__time {
+  flex: 1 0 0;
+  text-align: center;
+  font-family: var(--font-system);
+  font-weight: 590;
+  font-size: 17px;
+  line-height: 22px;
+  padding: 14px 46px;
+}
+.status-bar__island {
+  flex: 1 0 0;
+}
+.status-bar__levels {
+  flex: 1 0 0;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  padding: 18px 32px;
+}
+.status-bar--light {
+  color: var(--text-white);
+}
+.status-bar--dark {
+  color: var(--text-black);
+}
+
+.home-indicator {
+  position: relative;
+  z-index: 20;
+  flex: 0 0 40px;
+  height: 40px;
+  width: 440px;
+}
+
+/* ---------- Type ramp ---------- */
+
+.t-title-2 {
+  font: 700 60px/64px var(--font-display);
+}
+.t-title-3 {
+  font: 600 54px/65px var(--font-display);
+}
+.t-h0 {
+  font: 700 40px/normal var(--font-display);
+}
+.t-h1 {
+  font: 600 32px/normal var(--font-display);
+}
+.t-h2 {
+  font: 600 28px/normal var(--font-display);
+}
+.t-h3 {
+  font: 600 24px/normal var(--font-display);
+}
+.t-h4 {
+  font: 600 20px/28px var(--font-display);
+}
+.t-h4-medium {
+  font: 500 20px/28px var(--font-display);
+}
+.t-h4-regular {
+  font: 400 20px/28px var(--font-display);
+}
+.t-b1 {
+  font: 400 16px/24px var(--font-body);
+}
+.t-b1-medium {
+  font: 500 16px/24px var(--font-body);
+}
+.t-b1-semibold {
+  font: 600 16px/24px var(--font-body);
+}
+.t-b2 {
+  font: 400 14px/normal var(--font-body);
+}
+.t-b2-medium {
+  font: 500 14px/normal var(--font-body);
+}
+.t-b2-semibold {
+  font: 600 14px/normal var(--font-body);
+}
+.t-b3 {
+  font: 400 12px/normal var(--font-body);
+}
+.t-b3-medium {
+  font: 500 12px/normal var(--font-body);
+}
+.t-b3-semibold {
+  font: 600 12px/normal var(--font-body);
+}
+.t-s1 {
+  font: 500 10px/normal var(--font-body);
+}
+
+.c-grey {
+  color: var(--text-grey);
+}
+.c-light-grey {
+  color: var(--text-light-grey);
+}
+.c-primary {
+  color: var(--surface-primary);
+}
+.c-white {
+  color: var(--text-white);
+}

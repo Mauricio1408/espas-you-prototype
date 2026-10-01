@@ -1,0 +1,327 @@
+/* ---------- Range slider ---------- */
+
+.range {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 384px;
+}
+.range__label {
+  color: var(--neutral-500);
+}
+.range__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--surface-highlight);
+  box-shadow: var(--elevation-default);
+}
+.range__amount {
+  font: 700 32px/normal var(--font-body);
+  color: var(--text-black);
+  font-variant-numeric: tabular-nums;
+}
+.range__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.range__track {
+  position: relative;
+  height: 21px;
+  margin: 0 10px;
+  touch-action: none;
+  cursor: pointer;
+}
+.range__rail,
+.range__fill {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+}
+.range__rail {
+  left: -8px;
+  right: -8px;
+  background: var(--neutral-300);
+}
+.range__fill {
+  background: var(--surface-primary);
+}
+.range__thumb {
+  position: absolute;
+  top: 50%;
+  width: 22.6px;
+  height: 22.6px;
+  margin: -11.3px 0 0 -11.3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: inset 0 0 0 1.5px var(--surface-primary), 0 0 12px 2px rgba(0, 0, 0, 0.16);
+  cursor: grab;
+  touch-action: none;
+}
+.range__thumb:active {
+  cursor: grabbing;
+}
+.range__ticks {
+  display: flex;
+  justify-content: space-between;
+  white-space: nowrap;
+}
+
+/* ---------- Labelled select pills ---------- */
+
+.labelled {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.04));
+}
+.labelled__label {
+  color: var(--text-black);
+}
+.select-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  width: 100%;
+  padding: 0 24px;
+  border-radius: var(--radius-full);
+  background: var(--surface-highlight);
+  text-align: left;
+  color: var(--text-black);
+}
+.dropdown__options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+  margin-top: -12px;
+  padding-top: 12px;
+}
+.select-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 60px;
+  padding: 0 24px;
+  border-radius: var(--radius-full);
+  background: var(--surface-highlight);
+  text-align: left;
+  color: var(--neutral-500);
+}
+.select-option__dot {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+}
+.select-option__dot .radio-dot {
+  width: 28px;
+  height: 28px;
+}
+
+/* ---------- Overlay sheet ---------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+}
+.overlay__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+.overlay__sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 60px 60px 0 0;
+  background: var(--surface-default);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.12);
+  touch-action: none;
+}
+.overlay__grabber {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  width: 40px;
+  height: 5px;
+  margin-left: -20px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Date sheet ---------- */
+
+.date-sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 28px;
+  padding: 49px 24px 60px;
+}
+.date-sheet__close {
+  align-self: flex-end;
+  width: 32px;
+  height: 32px;
+}
+.date-sheet__title {
+  color: #000;
+}
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 20px 10px;
+  border-radius: 20px;
+}
+.calendar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+  overflow: hidden;
+}
+.calendar__picked {
+  display: flex;
+  gap: 8px;
+  font: 700 24px/normal var(--font-display);
+  color: #000;
+}
+.calendar__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.calendar__nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #000;
+}
+.calendar__nav button {
+  display: grid;
+  place-items: center;
+}
+.calendar__months {
+  position: relative;
+  overflow: hidden;
+  min-height: 288px;
+}
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 36px);
+  column-gap: 20px;
+  row-gap: 12px;
+}
+.calendar__dow {
+  display: grid;
+  place-items: center;
+  height: 36px;
+  color: #000;
+}
+.calendar__day {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 100px;
+  font: 600 16px/24px var(--font-body);
+  color: var(--neutral-500);
+  transition: background-color 120ms ease-out;
+}
+.calendar__day:hover:not(:disabled):not(.is-selected) {
+  background: rgba(0, 0, 0, 0.05);
+}
+.calendar__day span {
+  position: relative;
+  z-index: 1;
+}
+.calendar__day.is-outside {
+  color: var(--neutral-400);
+  text-decoration: line-through;
+  cursor: default;
+}
+.calendar__day.is-selected {
+  color: var(--neutral-100);
+}
+.calendar__sel {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px;
+  background: var(--surface-primary);
+}
+.btn--inverted {
+  width: 100%;
+  background: var(--surface-inverted);
+  color: var(--text-white);
+}
+
+/* ---------- iOS system alert ---------- */
+
+.sys-alert {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+}
+.sys-alert__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+.sys-alert__box {
+  position: relative;
+  width: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(242, 242, 242, 0.88);
+  backdrop-filter: blur(30px) saturate(1.6);
+  -webkit-backdrop-filter: blur(30px) saturate(1.6);
+  text-align: center;
+  font-family: var(--font-system);
+}
+.sys-alert__text {
+  padding: 20px 18px 16px;
+}
+.sys-alert__title {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #000;
+}
+.sys-alert__msg {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 18px;
+  color: #1c1c1e;
+}
+.sys-alert__actions {
+  display: flex;
+  flex-direction: column;
+}
+.sys-alert__actions button {
+  height: 44px;
+  border-top: 0.5px solid rgba(60, 60, 67, 0.29);
+  font-size: 17px;
+  color: #007aff;
+  transition: background-color 100ms;
+}
+.sys-alert__actions button:active {
+  background: rgba(0, 0, 0, 0.06);
+}
+.sys-alert__actions button.is-bold {
+  font-weight: 600;
+}

@@ -1,0 +1,83 @@
+/*
+ * Espas.you design tokens — mirrored 1:1 from the Figma variable collections
+ * (Primitives → Semantics). Names follow the Figma paths so a token can be
+ * traced back to its variable: `surface/surface-primary` → --surface-primary.
+ */
+:root {
+  /* Primitives */
+  --red-100: #ffc6c5;
+  --red-200: #f32420;
+  --red-300: #ba0e0a;
+  --red-400: #690806;
+  --red-10: #ba0e0a1a;
+  --green-100: #b1f2d9;
+  --green-200: #0dffbf;
+  --green-300: #00bb89;
+  --green-400: #006a4e;
+  --green-10: #006a4e1a;
+  --yellow-100: #fff1b8;
+  --yellow-200: #ffe785;
+  --yellow-300: #ffdd52;
+  --yellow-400: #eaa802;
+  --yellow-500: #8a6300;
+  --neutral-50: #ffffff;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #dbdbd7;
+  --neutral-300: #b1b1b1;
+  --neutral-350: #0000000f;
+  --neutral-380: #59575766;
+  --neutral-400: #575757;
+  --neutral-500: #1e1e1e;
+  --neutral-10: #1e1e1e1a;
+  --cream: #fffbf0;
+
+  /* Semantics (Light) */
+  --text-black: var(--neutral-500);
+  --text-white: var(--neutral-100);
+  --text-light-grey: var(--neutral-300);
+  --text-grey: var(--neutral-400);
+  --text-link: var(--red-300);
+  --surface-default: var(--neutral-100);
+  --surface-highlight: var(--neutral-50);
+  --surface-grey: var(--neutral-300);
+  --surface-glass: var(--neutral-380);
+  --surface-primary: var(--red-300);
+  --surface-inverted: var(--neutral-500);
+  --stroke: var(--neutral-350);
+
+  /* Status (Figma binds primitives directly; Flutter names them) */
+  --success: var(--green-400);
+  --success-tint: var(--green-10);
+  --warning: var(--yellow-500);
+  --warning-tint: var(--yellow-100);
+  --primary-tint: var(--red-10);
+
+  /* Values scale — Spacing, Margin and Corner Radius all alias it */
+  --v-0: 0px;
+  --v-1: 4px;
+  --v-2: 8px;
+  --v-3: 12px;
+  --v-4: 16px;
+  --v-5: 20px;
+  --v-6: 24px;
+  --radius-full: 1000px;
+  --gutter: 20px;
+
+  /* Effects */
+  --elevation-default: 0 0 20px rgba(0, 0, 0, 0.04);
+  --elevation-raised: 0 0 20px rgba(0, 0, 0, 0.08);
+
+  /* Type */
+  --font-display: 'Mona Sans', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-system: -apple-system, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+
+  /* Motion — the prototype's transition conventions */
+  --ease-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-push: 350ms;
+  --dur-smart: 300ms;
+  --dur-dissolve: 250ms;
+  --dur-press: 120ms;
+}
