@@ -321,6 +321,7 @@ export function TrustedTenants() {
       title="Peace of mind with every tenant"
       body="Our Tenant Reliability Score screens renters using verified data, so you can confidently choose the right fit for your property."
       cta="Enlist my property"
+      titleWeight="semibold"
       onCta={(nav) => nav.reset(['landlordDashboard'], { transition: 'dissolve' })}
     />
   );

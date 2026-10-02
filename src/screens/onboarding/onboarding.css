@@ -298,7 +298,7 @@
   gap: 16px;
 }
 .score__title {
-  font: 600 54px/65px var(--font-display);
+  font: 700 54px/65px var(--font-display);
   color: var(--neutral-500);
 }
 
@@ -357,4 +357,7 @@
 .confetti span {
   position: absolute;
   top: 0;
+}
+.score__title--semibold {
+  font-weight: 600;
 }

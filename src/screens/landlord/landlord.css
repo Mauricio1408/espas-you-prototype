@@ -758,7 +758,7 @@
 }
 .idscan__hint {
   margin-top: 6px;
-  font: 400 15px/22px var(--font-body);
+  font: 400 14px/20px var(--font-body); /* Body/B-2/Regular, as in Figma 2895:8600 */
   color: var(--text-grey);
 }
 .idscan__buttons {

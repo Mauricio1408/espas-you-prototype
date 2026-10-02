@@ -313,6 +313,8 @@ type Person = { name: string; title: string; avatar: string; badge: number; deci
 const JUAN: Person = { name: juan.name, title: 'Top Applicant', avatar: '/figma/juan-portrait.webp', badge: juan.score };
 
 type ScoreProps = {
+  /** Figma: tenant title is Title/T3/Bold, Trusted Tenants is Title/T3/SemiBold. */
+  titleWeight?: 'bold' | 'semibold';
   person?: Person;
   title?: string;
   body?: string;
@@ -326,6 +328,7 @@ export function ReliabilityScore({
   body = 'Stand out to top landlords and secure your ideal space faster. Your score is built on your on-time payments and verified reviews. This gives you a competitive edge when applying.',
   cta = 'Continue',
   onCta = (nav) => nav.push('endOfOnboarding'),
+  titleWeight = 'bold',
 }: ScoreProps) {
   const nav = useNav<ScreenId>();
   return (
@@ -366,7 +369,7 @@ export function ReliabilityScore({
       </div>
       <div className="score__stack">
         <motion.div className="score__copy" {...rise(0.35)}>
-          <h1 className="score__title">{title}</h1>
+          <h1 className={`score__title score__title--${titleWeight}`}>{title}</h1>
           <p className="t-h4-regular c-grey">{body}</p>
         </motion.div>
         <motion.div {...rise(0.45)} style={{ width: '100%' }}>
