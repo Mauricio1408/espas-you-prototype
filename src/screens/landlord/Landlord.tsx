@@ -537,7 +537,7 @@ export function LandlordDashboard() {
                   <span className="app-row__name">
                     {t.name} <span className="thread__prop">{t.property}</span>
                   </span>
-                  <span className={`thread__snippet ${t.unread ? 'is-unread' : ''}`}>{t.snippet}</span>
+                  <span className="thread__snippet">{t.snippet}</span>
                 </span>
                 <span className="app-row__right">
                   <span>{t.time}</span>
@@ -767,7 +767,7 @@ export function LandlordMessages() {
                       {score && <span className="thread__score">{score}</span>}
                     </span>
                     <span className="thread__prop">{t.property}</span>
-                    <span className={`thread__snippet ${unread ? 'is-unread' : ''}`}>{t.snippet}</span>
+                    <span className="thread__snippet">{t.snippet}</span>
                   </span>
                   <span className="thread__meta">
                     <span>{t.time}</span>

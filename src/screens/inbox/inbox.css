@@ -302,10 +302,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.thread__snippet.is-unread {
-  color: var(--text-black);
-  font-weight: 600;
-}
 .thread__meta {
   align-self: stretch;
   display: flex;

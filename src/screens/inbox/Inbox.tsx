@@ -279,7 +279,6 @@ export function Messages() {
         <div className="threads">
           <AnimatePresence mode="popLayout" initial={false}>
             {list.map((t, i) => {
-              const unread = t.unread && !read.includes(t.name);
               return (
                 <motion.button
                   layout
@@ -304,11 +303,10 @@ export function Messages() {
                       <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
                       <span className="thread__prop">{t.property}</span>
                     </span>
-                    <span className={`thread__snippet ${unread ? 'is-unread' : ''}`}>{t.snippet}</span>
+                    <span className="thread__snippet">{t.snippet}</span>
                   </span>
                   <span className="thread__meta">
                     <span>{t.time}</span>
-                    {unread && <motion.span className="thread__dot" layoutId={`dot-${t.name}`} />}
                   </span>
                 </motion.button>
               );

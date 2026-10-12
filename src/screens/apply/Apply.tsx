@@ -404,7 +404,7 @@ export function Apply4() {
   const app = state.application;
   const [moveIn, setMoveIn] = useState<string | null>(app.moveIn);
   const [message, setMessage] = useState(app.message);
-  const [consent, setConsent] = useState(true); // Figma shows the box ticked
+  const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const submit = () => {
