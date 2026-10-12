@@ -140,7 +140,7 @@
   align-items: center;
   gap: 8px;
   height: 60px;
-  padding: 0 24px;
+  padding: 0 23px; /* Figma 24; minus the 1px stroke */
   border-radius: var(--radius-full);
   background: var(--neutral-50);
   border: 1px solid var(--stroke);
@@ -197,9 +197,8 @@
   height: 350px;
   overflow: hidden;
 }
-.score__gradient img {
-  width: 440px;
-  height: 350px;
+.score--landlord .score__gradient {
+  height: 424px;
 }
 .score__back {
   position: absolute;
@@ -222,22 +221,16 @@
   position: relative;
   width: 160px;
   height: 160px;
-  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.04));
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.07)); /* Elevation/Default on Image Container */
 }
 .score__avatar {
   position: absolute;
   inset: 0;
   border-radius: 1000px;
-  border: 4.8px solid var(--neutral-100);
+  /* Figma strokes this OUTSIDE (4.8px Neutral/100), so it must not inset the photo */
+  box-shadow: 0 0 0 4.8px var(--neutral-100);
   overflow: hidden;
   background: #d9d9d9;
-}
-.score__avatar--fill img {
-  position: static !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  object-position: center 18%;
 }
 .score__avatar img {
   position: absolute;
@@ -263,20 +256,19 @@
   position: absolute;
   left: 105.5px;
   top: 124px;
-  min-width: 70px;
   padding: 8px 12px;
   border-radius: 8px;
   background: #fff;
   font: 700 28px/1 var(--font-display);
+  text-box: trim-both cap alphabetic; /* Headings/H-2/Bold → 72 × 36 badge */
   color: var(--red-300);
   box-shadow: 0 4px 14px rgba(105, 8, 6, 0.25);
   text-align: center;
-  font-variant-numeric: tabular-nums;
 }
 .score__name {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
   text-align: center;
   color: var(--neutral-50);
@@ -297,6 +289,17 @@
   flex-direction: column;
   gap: 16px;
 }
+/* Trusted Tenants: no status bar, 424px header, profile at y 120, copy at (28, 463), CTA 40 below */
+.score--landlord .score__profile {
+  top: 60px;
+}
+.score--landlord .score__stack {
+  top: 403px;
+  left: 28px;
+  width: 384px;
+  gap: 40px;
+}
+
 .score__title {
   font: 700 54px/65px var(--font-display);
   color: var(--neutral-500);
@@ -341,6 +344,10 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+/* Figma: Mona Sans Bold 54 with AUTO line height (a 76px box), copy 16px below */
+.end__copy .score__title {
+  line-height: 76px;
 }
 .end__cta {
   position: absolute;

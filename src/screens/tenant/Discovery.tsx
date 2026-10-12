@@ -1,14 +1,15 @@
-import { animate, AnimatePresence, motion, useMotionValue, useScroll, useTransform } from 'motion/react';
+import { AnimatePresence, motion, useScroll, useTransform } from 'motion/react';
 import { useMemo, useRef, useState } from 'react';
 import { Screen } from '../../components/Chrome';
 import { Button, Switch } from '../../components/Controls';
 import { GlassHeart, ListingCard, TenantBottomNav, toast } from '../../components/Feed';
+import { RealMap, screenToLngLat } from '../../components/RealMap';
 import { SwipeGallery } from '../../components/SwipeGallery';
 import { emojiFor } from '../../data/emoji';
-import { Calendar, formatDate, Overlay } from '../../components/Inputs';
+import { Calendar, formatDate, Overlay, RangeSlider } from '../../components/Inputs';
 import { feed, lifestyleChips, lifestyleMatch, listingById, mapPins, peso, photos, type Listing, type MapPin } from '../../data/mock';
 import { useNav, useParams } from '../../nav/Navigator';
-import { useStore } from '../../state/store';
+import { PRICE_MAX, useStore } from '../../state/store';
 import type { ScreenId } from '../registry';
 import './tenant.css';
 
@@ -83,8 +84,8 @@ export function TenantDashboard() {
 /* Tenant Search — Map View (+ Active Listing sheet + Filters)         */
 /* ------------------------------------------------------------------ */
 
-const MAP_W = 1803;
-const MAP_H = 1014;
+/** Pins keep their Figma screen positions on first load: canvas coords − the canvas' initial offset (1008, 44). */
+const pinLngLat = (p: MapPin) => screenToLngLat(p.x - 1008, p.y - 44);
 
 export function MapView({ initialListing, openFilters = false }: { initialListing?: string; openFilters?: boolean }) {
   const nav = useNav<ScreenId>();
@@ -93,66 +94,54 @@ export function MapView({ initialListing, openFilters = false }: { initialListin
   const preselect = params.listing ?? initialListing;
   const [active, setActive] = useState<MapPin | null>(() => (preselect ? mapPins.find((p) => p.listing?.id === preselect) ?? null : null));
   const [filters, setFilters] = useState(openFilters);
-  const clampX = (v: number) => Math.min(0, Math.max(440 - MAP_W, v));
-  const clampY = (v: number) => Math.min(0, Math.max(950 - MAP_H, v));
-  const initialPin = active;
-  const x = useMotionValue(initialPin ? clampX(220 - initialPin.x - 50) : -1008);
-  const y = useMotionValue(initialPin ? clampY(300 - initialPin.y) : -44);
-
-  /** Selecting a pin pans the map so the pin sits centred above the sheet. */
-  const select = (p: MapPin) => {
-    setActive(p);
-    animate(x, clampX(220 - p.x - 50), { type: 'spring', stiffness: 120, damping: 22 });
-    animate(y, clampY(300 - p.y), { type: 'spring', stiffness: 120, damping: 22 });
-  };
+  /** Selecting a pin eases the camera so the pin sits centred above the sheet (RealMap `focus`). */
+  const select = (p: MapPin) => setActive(p);
 
   const f = state.filters;
   const typeOf = (l: Listing) => (/^Room/.test(l.location) ? 'Room for rent' : /^Studio|^Loft/.test(l.location) ? 'Studio' : /^Condo/.test(l.location) ? 'Condo' : 'Apartment');
-  const pinMatches = (p: MapPin) => !!p.listing && (f.types.length === 0 || f.types.includes(typeOf(p.listing)));
+  const pinMatches = (p: MapPin) => !!p.listing && (f.types.length === 0 || f.types.includes(typeOf(p.listing))) && inPrice(p.listing.price, f.price ?? [0, PRICE_MAX]);
 
   return (
     <Screen
       tone="light"
+      indicator={active ? 'offwhite' : 'dark'}
       background="#e8e6e1"
-      className="map-screen"
+      className={`map-screen ${active ? 'is-active' : ''}`}
       backdrop={
         <>
-          {/* Draggable map canvas — the Figma map export, positioned exactly as in the frame. */}
+          {/* Real OpenStreetMap (MapLibre + OpenFreeMap); the Figma pin pills ride on top. */}
           <div className="map">
-            <motion.div
-              className="map__canvas"
-              style={{ x, y, width: MAP_W, height: MAP_H }}
-              drag
-              dragConstraints={{ left: 440 - MAP_W, right: 0, top: 950 - MAP_H, bottom: 0 }}
-              dragElastic={0.08}
-              dragMomentum
-            >
-              <img src="/figma/map.webp" width={MAP_W} height={MAP_H} alt="Map of Uptown Center, Quezon City" draggable={false} />
-              <div className="map__tint" />
-              {mapPins.map((p, i) => {
-                const isActive = active === p;
-                const ok = pinMatches(p);
-                return (
-                  <motion.button
-                    key={i}
-                    type="button"
-                    className={`pin ${isActive ? 'is-active' : ''} ${ok ? '' : 'is-inactive'}`}
-                    style={{ left: p.x, top: p.y }}
-                    disabled={!ok}
-                    initial={{ opacity: 0, y: 12, scale: 0.8 }}
-                    animate={{ opacity: 1, y: 0, scale: isActive ? 1.08 : 1 }}
-                    transition={{ type: 'spring', stiffness: 420, damping: 24, delay: active ? 0 : 0.1 + i * 0.04 }}
-                    whileTap={{ scale: 0.92 }}
-                    onClick={() => select(p)}
-                  >
-                    {p.emoji} {p.listing ? peso(p.listing.price) : p.label}
-                  </motion.button>
-                );
-              })}
-              <AnimatePresence>
-                {active && <motion.div className="map__dim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} onClick={() => setActive(null)} />}
-              </AnimatePresence>
-            </motion.div>
+            <RealMap focus={active ? pinLngLat(active) : null} focusOffset={[-60, -143]}>
+              {(project) => (
+                <>
+                  <div className="map__tint" />
+                  {mapPins.map((p, i) => {
+                    const isActive = active === p;
+                    const ok = pinMatches(p);
+                    const pt = project(pinLngLat(p));
+                    return (
+                      <motion.button
+                        key={i}
+                        type="button"
+                        className={`pin ${isActive ? 'is-active' : ''} ${ok ? '' : 'is-inactive'}`}
+                        style={{ left: pt.x, top: pt.y }}
+                        disabled={!ok}
+                        initial={{ opacity: 0, y: 12, scale: 0.8 }}
+                        animate={{ opacity: 1, y: 0, scale: isActive ? 1.08 : 1 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 24, delay: active ? 0 : 0.1 + i * 0.04 }}
+                        whileTap={{ scale: 0.92 }}
+                        onClick={() => select(p)}
+                      >
+                        {p.emoji} {p.listing ? peso(p.listing.price) : p.label}
+                      </motion.button>
+                    );
+                  })}
+                  <AnimatePresence>
+                    {active && <motion.div className="map__dim" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} onClick={() => setActive(null)} />}
+                  </AnimatePresence>
+                </>
+              )}
+            </RealMap>
           </div>
         </>
       }
@@ -171,7 +160,7 @@ export function MapView({ initialListing, openFilters = false }: { initialListin
         </div>
         <motion.button type="button" className="map-tool map-tool--filter" onClick={() => setFilters(true)} whileTap={{ scale: 0.9 }} aria-label="Filters">
           <img src="/figma/icon-filter-blobs.svg" width={17.143} height={17.143} alt="" />
-          {(f.moveIn || f.verifiedOnly || f.types.length > 0 || f.amenities.length > 0) && <span className="map-tool__dot" />}
+          {(f.moveIn || f.verifiedOnly || f.types.length > 0 || f.amenities.length > 0 || (f.price && (f.price[0] > 0 || f.price[1] < PRICE_MAX))) && <span className="map-tool__dot" />}
         </motion.button>
       </motion.div>
 
@@ -213,11 +202,6 @@ function ListingSheet({ listing, onClose }: { listing: Listing; onClose: () => v
     >
       <div className="lsheet__gallery">
         <SwipeGallery images={gallery} width={390} page={page} onPage={setPage} />
-        <div className="lsheet__dots">
-          {gallery.map((_, i) => (
-            <motion.span key={i} animate={{ width: i === page ? 20 : 8, opacity: i === page ? 1 : 0.6 }} transition={{ duration: 0.25 }} />
-          ))}
-        </div>
         <div className="lsheet__tags">
           <span className="avail-tag">
             <img src="/figma/dot-green.svg" width={10} height={10} alt="" />
@@ -275,7 +259,8 @@ function ListingSheet({ listing, onClose }: { listing: Listing; onClose: () => v
   );
 }
 
-type Filters = { moveIn: string | null; verifiedOnly: boolean; types: string[]; amenities: string[] };
+type Filters = { moveIn: string | null; verifiedOnly: boolean; types: string[]; amenities: string[]; price: [number, number] };
+const inPrice = (price: number, [lo, hi]: [number, number]) => price >= lo && (hi >= PRICE_MAX || price <= hi);
 
 const PLACE_TYPES = ['Studio', 'Condo', 'Apartment', 'Room for rent'];
 const VIBES = ['Near transit', 'City Center', 'Gym', 'Near Supermarket', 'Quiet', 'Nightlife', 'Security'];
@@ -297,9 +282,12 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
   const [verified, setVerified] = useState(state.filters.verifiedOnly);
   const [types, setTypes] = useState<string[]>(state.filters.types);
   const [vibes, setVibes] = useState<string[]>(state.filters.amenities);
+  const [price, setPrice] = useState<[number, number]>(state.filters.price ?? [0, PRICE_MAX]);
   const flip = (xs: string[], x: string) => (xs.includes(x) ? xs.filter((y) => y !== x) : [...xs, x]);
-  const none = !later && !verified && types.length === 0 && vibes.length === 0;
-  const count = Math.max(3, Math.round(1000 * (later ? 0.64 : 1) * (verified ? 0.82 : 1) * (types.length ? types.length * 0.22 : 1) * Math.pow(0.86, vibes.length)));
+  const priceSet = price[0] > 0 || price[1] < PRICE_MAX;
+  const none = !later && !verified && types.length === 0 && vibes.length === 0 && !priceSet;
+  const priceShare = Math.max(0.05, (Math.min(price[1], PRICE_MAX) - price[0]) / PRICE_MAX);
+  const count = Math.max(3, Math.round(1000 * (later ? 0.64 : 1) * (verified ? 0.82 : 1) * (types.length ? types.length * 0.22 : 1) * Math.pow(0.86, vibes.length) * priceShare));
   const label = none ? '1000+' : String(count);
 
   return (
@@ -336,13 +324,18 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
             </div>
             <hr className="filters__divider" />
             <div className="filters__group">
+              <p className="filters__label">Price range</p>
+              <RangeSlider value={price} onChange={setPrice} min={0} max={PRICE_MAX} step={500} label={null} name="monthly rent" ticks={['0', '10,000', '20,000', '30,000', '40,000+']} />
+            </div>
+            <hr className="filters__divider" />
+            <div className="filters__group">
               <div className="filters__row">
                 <p className="filters__label">Verified landlords only</p>
                 <Switch on={verified} onChange={setVerified} label="Verified landlords only" />
               </div>
               <p className="filters__desc">This ensures that only verified landlords from our system are shown</p>
             </div>
-            <hr className="filters__divider" />
+            <hr className="filters__divider filters__divider--after-verified" />
             <div className="filters__group">
               <p className="filters__label">Type of place</p>
               <div className="toggle-grid">
@@ -351,7 +344,7 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
                 ))}
               </div>
             </div>
-            <hr className="filters__divider" />
+            <hr className="filters__divider filters__divider--after-type" />
             <div className="filters__group">
               <p className="filters__label">Amenities and Vibes</p>
               <div className="toggle-wrap">
@@ -365,7 +358,7 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
         <div className="filters__footer">
           <Button
             onClick={() => {
-              onApply({ moveIn: later ? formatDate(date) : null, verifiedOnly: verified, types, amenities: vibes });
+              onApply({ moveIn: later ? formatDate(date) : null, verifiedOnly: verified, types, amenities: vibes, price });
               onClose();
             }}
           >
@@ -383,7 +376,8 @@ function FilterSheet({ open, onClose, onApply }: { open: boolean; onClose: () =>
               setVerified(false);
               setTypes([]);
               setVibes([]);
-              onApply({ moveIn: null, verifiedOnly: false, types: [], amenities: [] });
+              setPrice([0, PRICE_MAX]);
+              onApply({ moveIn: null, verifiedOnly: false, types: [], amenities: [], price: [0, PRICE_MAX] });
             }}
           >
             Remove filters
@@ -439,6 +433,7 @@ export function ViewListing() {
   return (
     <Screen
       tone="light"
+      indicator="dark"
       footer={
         <div className="action-bar">
           <div className="action-bar__price">
@@ -514,7 +509,7 @@ export function ViewListing() {
             </div>
           </div>
 
-          <img src="/figma/divider-dashed.svg" width={392} height={1} alt="" />
+          <img src="/figma/divider-dashed.svg" width={385} height={1} alt="" />
 
           <div className="landlord-row">
             <div className="landlord-row__avatar">
@@ -529,7 +524,7 @@ export function ViewListing() {
               <p className="landlord-row__meta">
                 <span>
                   {listing.landlord.rating.toFixed(2)}
-                  <img src="/figma/icon-star-grey-12.svg" width={12} height={12} alt="" />
+                  <img src="/figma/icon-star-yellow-12.svg" width={12} height={12} alt="" />
                 </span>
                 <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
                 Verified Landlord
@@ -538,7 +533,7 @@ export function ViewListing() {
             </div>
           </div>
 
-          <img src="/figma/divider-solid.svg" width={392} height={1} alt="" />
+          <img src="/figma/divider-dashed.svg" width={385} height={1} alt="" />
 
           <div className="vl__block">
             <h2 className="vl__h2">Where you’ll live</h2>
@@ -557,7 +552,7 @@ export function ViewListing() {
             </div>
           </div>
 
-          <img src="/figma/divider-solid.svg" width={392} height={1} alt="" />
+          <img src="/figma/divider-dashed.svg" width={385} height={1} alt="" />
 
           <div className="vl__block">
             <h2 className="vl__h2">What this place offers</h2>
@@ -581,7 +576,7 @@ export function ViewListing() {
             </Button>
           </div>
 
-          <img src="/figma/divider-solid.svg" width={392} height={1} alt="" />
+          <img src="/figma/divider-dashed.svg" width={385} height={1} alt="" />
 
           <div className="vl__block">
             <h2 className="vl__h2">Lease terms &amp; House Rules</h2>
@@ -593,7 +588,7 @@ export function ViewListing() {
             </ul>
           </div>
 
-          <img src="/figma/divider-solid.svg" width={392} height={1} alt="" />
+          <img src="/figma/divider-dashed.svg" width={385} height={1} alt="" />
 
           <div className="vl__block vl__block--about">
             <h2 className="vl__h2">About this place</h2>

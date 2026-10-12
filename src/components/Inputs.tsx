@@ -18,22 +18,37 @@ export function RangeSlider({
   max = 20000,
   step = 500,
   label = 'Budget (₱)',
+  ticks = ['0', '5,000', '10,000', '15,000', '20,000+'],
+  name = 'budget',
 }: {
   value: [number, number];
   onChange: (v: [number, number]) => void;
   min?: number;
   max?: number;
   step?: number;
-  label?: string;
+  /** null hides the small label (the filter sheet supplies its own heading). */
+  label?: string | null;
+  ticks?: string[];
+  name?: string;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<0 | 1 | null>(null);
-  const pct = (v: number) => ((v - min) / (max - min)) * 100;
+  // Figma places each thumb just right of its tick label, not linearly along the rail:
+  // the 5 ticks sit at these fractions of the 344px track (Input / Budget Range Slider).
+  const ANCHORS = [0.0221, 0.1913, 0.4189, 0.6576, 0.9145];
+  const pct = (v: number) => {
+    const t = Math.min(4, Math.max(0, ((v - min) / (max - min)) * 4));
+    const i = Math.min(3, Math.floor(t));
+    return (ANCHORS[i] + (ANCHORS[i + 1] - ANCHORS[i]) * (t - i)) * 100;
+  };
 
   const fromPointer = (clientX: number) => {
     const r = trackRef.current!.getBoundingClientRect();
-    const t = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
-    return Math.round((min + t * (max - min)) / step) * step;
+    const x = Math.min(ANCHORS[4], Math.max(ANCHORS[0], (clientX - r.left) / r.width));
+    let i = 0;
+    while (i < 3 && x > ANCHORS[i + 1]) i++;
+    const t = i + (x - ANCHORS[i]) / (ANCHORS[i + 1] - ANCHORS[i]);
+    return Math.round((min + (t / 4) * (max - min)) / step) * step;
   };
 
   const startDrag = (thumb: 0 | 1) => (e: React.PointerEvent) => {
@@ -69,7 +84,7 @@ export function RangeSlider({
 
   return (
     <div className="range">
-      <p className="t-b1 range__label">{label}</p>
+      {label && <p className="t-b1 range__label">{label}</p>}
       <div className="range__card">
         <motion.p className="range__amount" key={amount} initial={{ opacity: 0.6, y: 2 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.12 }}>
           {amount}
@@ -83,7 +98,7 @@ export function RangeSlider({
                 key={t}
                 role="slider"
                 tabIndex={0}
-                aria-label={t === 0 ? 'Minimum budget' : 'Maximum budget'}
+                aria-label={`${t === 0 ? 'Minimum' : 'Maximum'} ${name}`}
                 aria-valuemin={min}
                 aria-valuemax={max}
                 aria-valuenow={value[t]}
@@ -99,11 +114,9 @@ export function RangeSlider({
             ))}
           </div>
           <div className="range__ticks t-b1 c-grey">
-            <span>0</span>
-            <span>5,000</span>
-            <span>10,000</span>
-            <span>15,000</span>
-            <span>20,000+</span>
+            {ticks.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
           </div>
         </div>
       </div>
@@ -131,7 +144,7 @@ export function DateField({ label, value, onChange, placeholder = 'mm/dd/yyyy' }
     <div className="labelled">
       <p className="t-b1 labelled__label">{label}</p>
       <motion.button type="button" className="select-pill" onClick={() => setOpen(true)} whileTap={{ scale: 0.98 }}>
-        <span className={value ? '' : 'c-grey'}>{value ?? placeholder}</span>
+        <span>{value ?? placeholder}</span>
         <img src="/figma/icon-calendar.svg" width={24} height={24} alt="" />
       </motion.button>
       <DateSheet
@@ -269,7 +282,6 @@ export function Overlay({ open, onClose, children }: { open: boolean; onClose: (
               if (info.offset.y > 120 || info.velocity.y > 600) onClose();
             }}
           >
-            <span className="overlay__grabber" />
             {children}
           </motion.div>
         </div>

@@ -131,10 +131,11 @@
   position: relative;
   z-index: 10;
   flex: 0 0 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 0 24px; /* 60px items centred in the 80px bar (Figma: items at y 840) */
   background: var(--surface-default);
 }
 .bnav__item {
@@ -239,7 +240,8 @@
   gap: 16px;
   padding-bottom: 16px;
   margin-bottom: 32px;
-  border-bottom: 1px dashed var(--neutral-200);
+  /* Figma: 1px Neutral/200 bottom stroke, dash 16 / gap 16 (CSS 'dashed' can't set lengths) */
+  background: repeating-linear-gradient(to right, var(--neutral-200) 0 16px, transparent 16px 32px) left bottom / 100% 1px no-repeat;
 }
 .dash-search {
   display: flex;
@@ -255,7 +257,7 @@
 .dash-search__text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px; /* Figma: trimmed title, 8, trimmed subtitle */
   white-space: nowrap;
 }
 .dash__chips {
@@ -270,7 +272,7 @@
   align-items: center;
   gap: 8px;
   height: 40px;
-  padding: 0 20px;
+  padding: 0 19px; /* Figma 20; minus the 1px stroke */
   border-radius: 40px;
   border: 1px solid var(--neutral-300);
   background: var(--surface-default);
@@ -287,6 +289,10 @@
   font-weight: 500;
 }
 .toggle-chip__emoji {
+  /* Figma's emoji advance is 16px; Windows' Segoe glyph is wider, so pin the box */
+  display: inline-flex;
+  justify-content: center;
+  width: 16px;
   font-weight: 600;
 }
 
@@ -305,10 +311,11 @@
 }
 .dash-section__list {
   display: flex;
+  align-items: flex-start; /* cards keep their own height (262 / 245), as in Figma */
   gap: 20px;
   margin: 0 -24px;
   padding: 0 24px;
-  min-height: 300px;
+  min-height: 262px;
 }
 .dash-section__empty {
   align-self: center;
@@ -529,6 +536,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 20px; /* Figma row 20 (the 20px rating text is cap-trimmed) */
 }
 .verified-row {
   display: inline-flex;
@@ -563,6 +571,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 10px; /* Body/B-2 cap-trimmed */
   font: 400 14px/normal var(--font-body);
   color: rgba(30, 30, 30, 0.6);
 }
@@ -621,16 +630,18 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
   font: 400 16px/1 var(--font-body);
   color: var(--text-white);
-  font-variant-numeric: tabular-nums;
 }
 .vl__body {
-  width: 392px;
+  width: 385px; /* Figma content column x 27.5 → 412.5 */
   margin: 40px auto 0;
   padding-bottom: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 60px; /* Figma: sections 60 apart … */
+}
+.vl__stats {
+  margin-top: -20px; /* … but the stats row sits 40 under the intro (same Figma stack) */
 }
 .vl__intro {
   display: flex;
@@ -640,8 +651,10 @@
   text-align: center;
 }
 .vl__title {
-  font: 700 28px/normal var(--font-display);
+  /* Headings/H-2/Bold: cap-trimmed, 33.8px line pitch → 54px for two lines */
+  font: 700 28px/33.8px var(--font-display);
   color: var(--text-black);
+  text-box: trim-both cap alphabetic;
 }
 .vl__sub {
   width: 350px;
@@ -653,12 +666,16 @@
   opacity: 0.6;
 }
 .vl__beds {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  display: block; /* a block (not flex) so the cap-trim applies */
+  text-align: center;
   font: 400 16px/24px var(--font-body);
   color: rgba(30, 30, 30, 0.6);
+  text-box: trim-both cap alphabetic;
+}
+.vl__beds img {
+  display: inline-block;
+  margin: 0 8px;
+  vertical-align: middle;
 }
 .vl__stats {
   width: 100%;
@@ -703,7 +720,7 @@
 .landlord-row__avatar {
   position: relative;
   width: 80px;
-  height: 80px;
+  height: 82px; /* Figma group 80 × 82: the check badge hangs 2px below the photo */
   flex: none;
 }
 .landlord-row__ring {
@@ -740,6 +757,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 12px; /* Body/B-1/Medium cap-trimmed */
   font: 500 16px/24px var(--font-body);
   color: var(--text-grey);
 }
@@ -750,6 +768,7 @@
 }
 .landlord-row__name {
   font: 600 20px/normal var(--font-body);
+  text-box: trim-both cap alphabetic;
 }
 
 .vl__block {
@@ -760,6 +779,7 @@
 }
 .vl__h2 {
   font: 700 24px/normal var(--font-display);
+  text-box: trim-both cap alphabetic; /* Headings/H-3/Bold */
 }
 .rooms {
   display: grid;
@@ -786,7 +806,7 @@
 .room__text {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px; /* Figma: 12 trimmed + 12 + 10 trimmed = 34 */
 }
 .room__sub {
   opacity: 0.6;
@@ -819,7 +839,7 @@
   padding-left: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px; /* Figma: trimmed 12px lines, 20 apart */
   font: 400 16px/24px var(--font-body);
   color: rgba(30, 30, 30, 0.8);
 }
@@ -832,6 +852,10 @@
 .vl__about {
   font: 400 16px/24px var(--font-body);
   color: rgba(30, 30, 30, 0.8);
+  text-box: trim-both cap alphabetic;
+}
+.rules li {
+  text-box: trim-both cap alphabetic;
 }
 .vl__about--more {
   overflow: hidden;
@@ -908,7 +932,7 @@
   width: 193px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px; /* Figma: trimmed price, 16, trimmed pax */
 }
 .action-bar__cta.pill-btn {
   flex: none;
@@ -933,11 +957,12 @@
 
 /* ---------- Filters (Figma 2662:12774 · Modal / Filter Content) ---------- */
 .filters {
-  height: 900px;
+  /* Figma Sheet / Base starts at y 60; its stack (close to footer) ends at 911, above the home strip */
+  height: 890px;
   display: flex;
   flex-direction: column;
   gap: 28px;
-  padding: 49px 24px 0;
+  padding: 49px 24px 39px;
 }
 .filters > .date-sheet__close {
   align-self: flex-end;
@@ -945,6 +970,7 @@
 .filters__title {
   font: 600 32px/normal var(--font-display);
   color: #000;
+  text-box: trim-both cap alphabetic; /* Headings/H-1/SemiBold */
 }
 .filters__scroll {
   flex: 1 1 0;
@@ -956,6 +982,10 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
+  width: 390px; /* Figma Modal / Filter Content is 390 wide */
+}
+.filters__content .range {
+  width: 100%;
 }
 .filters__group {
   display: flex;
@@ -965,6 +995,7 @@
 .filters__label {
   font: 700 20px/1.2 var(--font-display);
   color: #000;
+  text-box: trim-both cap alphabetic; /* Headings/H-4/Bold */
 }
 .filters__row {
   display: flex;
@@ -972,26 +1003,30 @@
   justify-content: space-between;
 }
 .filters__desc {
-  font: 400 16px/1.4 var(--font-body);
+  font: 400 16px/24px var(--font-body);
   color: var(--text-grey);
+  text-box: trim-both cap alphabetic; /* Body/B-1/Regular */
 }
 .filters__divider {
-  margin: 0 -1px;
+  /* Figma: 392px line, 1px black @20%, dash 16 / gap 16; 20 below a group, 40 above the next */
+  margin: -20px -1px 0;
+  height: 1px;
   border: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.2);
+  background: repeating-linear-gradient(to right, rgba(0, 0, 0, 0.2) 0 16px, transparent 16px 32px);
+}
+/* Figma spaces each divider differently below its group: Verified 60, Type of place 42 */
+.filters__divider--after-verified {
+  margin-top: 20px;
+}
+.filters__divider--after-type {
+  margin-top: 2px;
 }
 .filters__calendar {
   overflow: hidden;
 }
 .filters__calendar .calendar {
-  padding: 20px 0;
-  border-radius: 20px;
-  background: #fff;
-  align-items: center;
-}
-.filters__calendar .calendar__head,
-.filters__calendar .calendar__body {
-  width: 372px;
+  padding: 20px 0; /* Figma's card fill is hidden: the calendar sits on the sheet */
+  align-items: stretch;
 }
 .filters__footer {
   margin: 0 -24px;
@@ -1000,7 +1035,7 @@
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-top: 1px solid var(--stroke);
 }
 
 /* `Segmented Control / 2 Options` */
@@ -1012,14 +1047,14 @@
   padding: 4px;
   border-radius: 40px;
   background: #fff;
-  border: 1px solid var(--stroke);
+  border: 0.5px solid var(--stroke);
   box-shadow: var(--elevation-default);
   flex: none;
 }
 .seg-control__opt {
   position: relative;
   border-radius: 1000px;
-  background: var(--neutral-100);
+  background: transparent; /* Figma renders the inactive option on the control's white */
   font: 500 16px/1 var(--font-body);
   color: var(--neutral-500);
 }
@@ -1068,28 +1103,25 @@
   gap: 8px;
 }
 
-/* Card / Information List: even rhythm between status, title, price and meta
-   (Figma gaps 4 / 8 / 8 measured on trimmed text boxes). */
+/* Card / Information List (Figma): status label (text + 4px bottom pad), 4, title, 8, price, 8, meta row —
+   every text cap-trimmed, so the block is 70px with a status and 53px without. */
 .lcard__info {
-  gap: 6px;
+  gap: 4px;
+}
+.lcard__status {
+  padding-bottom: 4px;
 }
 .lcard__status,
-.noissue-tag {
-  padding-bottom: 0;
-  line-height: 16px;
-}
-.lcard__stack {
-  gap: 6px;
-}
-.lcard__info .lcard__title {
-  line-height: 20px;
-}
-.lcard__info .t-h4 {
-  line-height: 26px;
-}
+.lcard__title,
 .lcard__meta,
 .lcard__rating {
-  line-height: 16px;
+  text-box: trim-both cap alphabetic;
+}
+.lcard__stack {
+  gap: 8px;
+}
+.lcard__row {
+  height: 12px;
 }
 
 /* View Listing CTA: a touch larger */
@@ -1102,4 +1134,62 @@
 .vl__track {
   position: absolute;
   inset: 0;
+}
+
+/* Real map (MapLibre GL + OpenFreeMap) */
+.realmap,
+.realmap__gl,
+.realmap__overlay {
+  position: absolute;
+  inset: 0;
+}
+.realmap__overlay {
+  pointer-events: none;
+}
+.realmap__overlay .pin,
+.realmap__overlay .map__dim {
+  pointer-events: auto;
+}
+.realmap .maplibregl-ctrl-bottom-right {
+  bottom: 40px; /* clear the home indicator */
+}
+
+/* Map chrome per Figma: frosted 20% top bar; opaque #F5F5F5 home strip on Map View,
+   the 60% dim on Active Listing; the search bar drops to y 120 while a listing is open. */
+.map-screen .status-bar {
+  background: rgba(57, 57, 57, 0.2);
+  backdrop-filter: blur(2px);
+}
+.map-screen .home-indicator {
+  background: var(--surface-default);
+}
+.map-screen.is-active .status-bar {
+  background: rgba(32, 32, 32, 0.2);
+}
+.map-screen.is-active .home-indicator {
+  background: rgba(32, 32, 32, 0.6);
+}
+.map-search {
+  transition: top 300ms cubic-bezier(0.42, 0, 0.58, 1);
+}
+.map-screen.is-active .map-search {
+  top: 60px;
+}
+
+/* Filter sheet: Figma draws the home indicator on the sheet and has no scrim over the map strip above it */
+.filters {
+  position: relative;
+}
+.filters::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 440px;
+  height: 40px;
+  background: url('/figma/home-indicator-dark.svg') center / 440px 40px no-repeat;
+  pointer-events: none;
+}
+.overlay:has(.filters) .overlay__scrim {
+  background: transparent;
 }

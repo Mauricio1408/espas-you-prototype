@@ -23,7 +23,9 @@ function BrandMark({ style }: { style?: React.CSSProperties }) {
         <div className="brand-mark__logo">
           <img src="/figma/logo-red-shadow.svg" width={96.7347} height={87.5213} alt="" />
         </div>
-        <img className="brand-mark__wordmark" src="/figma/wordmark-red.svg" width={179} height={32.6} alt="Espas.you" />
+        <span className="brand-mark__wordmark">
+          <img src="/figma/wordmark-red.svg" width={179} height={32.6} alt="Espas.you" />
+        </span>
       </div>
       <p className="brand-mark__tagline t-h4-medium">Space made just for you</p>
     </motion.div>
@@ -184,6 +186,7 @@ export function SignInOptions() {
   });
   return (
     <Screen
+      indicator="grey"
       className="auth"
       backdrop={
         <HouseHero
@@ -193,7 +196,7 @@ export function SignInOptions() {
           />
       }
     >
-      <BrandMark style={{ top: 94 }} />
+      <BrandMark style={{ top: 100 }} />
       <div className="auth-options">
         <AuthOption className="auth-option--google" icon={<img src="/figma/social-google.svg" width={28} height={28} alt="" />} onClick={() => run('google')} busy={busy === 'google'} delay={0.2}>
           Continue with Google
@@ -246,6 +249,7 @@ export function LogIn() {
 
   return (
     <Screen
+      indicator="grey"
       className="auth"
       backdrop={
         <HouseHero
@@ -255,10 +259,10 @@ export function LogIn() {
           />
       }
     >
-      <BrandMark style={{ top: 18 }} />
+      <BrandMark style={{ top: 23.6 }} />
       <motion.form
         className="auth-form"
-        style={{ bottom: 11 }}
+        style={{ bottom: 17 }}
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: spring, delay: 0.15 }}
@@ -302,6 +306,7 @@ export function SignUp() {
 
   return (
     <Screen
+      indicator="grey"
       className="auth"
       backdrop={
         <HouseHero
@@ -311,10 +316,10 @@ export function SignUp() {
           />
       }
     >
-      <BrandMark style={{ top: 0 }} />
+      <BrandMark style={{ top: 5.6 }} />
       <motion.form
         className="auth-form"
-        style={{ bottom: 2 }}
+        style={{ bottom: 8 }}
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.55, ease: spring, delay: 0.15 }}

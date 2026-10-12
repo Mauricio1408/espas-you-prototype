@@ -63,6 +63,7 @@
   width: 390px;
 }
 .primary-skip__skip {
+  text-box: trim-both cap alphabetic; /* Headings/H-3/Regular */
   width: 100%;
   font: 400 24px/normal var(--font-display);
   color: var(--neutral-400);
@@ -81,7 +82,7 @@
   align-items: center;
   gap: 12px;
   height: 60px;
-  padding: 0 24px;
+  padding: 0 22px; /* 24 in Figma, minus the 2px stroke CSS lays out */
   border-radius: var(--radius-full);
   background: var(--surface-highlight);
   border: 2px solid var(--stroke);
@@ -102,7 +103,7 @@
 }
 .field__label {
   position: absolute;
-  left: 26px;
+  left: 22px;
   top: 50%;
   transform-origin: left center;
   transform: translateY(-50%);
@@ -175,7 +176,7 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding: 20px 24px;
+  padding: 18px 22px; /* Figma 20/24; the 2px stroke takes no layout space there */
   border-radius: 12px;
   background: var(--surface-highlight);
   border: 2px solid var(--stroke);
@@ -192,9 +193,16 @@
   gap: 12px;
 }
 .radio-card__label {
+  /* Headings/H-4/Medium, cap-trimmed; a one-line label centres on the 24px dot, two lines top-align */
+  display: flex;
+  align-items: center;
+  min-height: 24px;
   font: 500 20px/28px var(--font-display);
   color: var(--neutral-500);
-  margin-top: -2px;
+}
+.radio-card__text {
+  display: block;
+  text-box: trim-both cap alphabetic;
 }
 
 /* ---------- Progress ---------- */
@@ -208,7 +216,7 @@
 }
 .progress__seg {
   position: relative;
-  width: 66px;
+  width: 65.6px;
   height: 8px;
   border-radius: 4px;
   overflow: hidden;

@@ -144,8 +144,12 @@ h4 {
   align-items: center;
   justify-content: space-between;
 }
+/* Figma: three equal 146.67px frames (Time · Dynamic Island · Levels). */
+.status-bar > * {
+  flex: 0 0 146.667px;
+  box-sizing: border-box;
+}
 .status-bar__time {
-  flex: 1 0 0;
   text-align: center;
   font-family: var(--font-system);
   font-weight: 590;
@@ -154,10 +158,8 @@ h4 {
   padding: 14px 46px;
 }
 .status-bar__island {
-  flex: 1 0 0;
 }
 .status-bar__levels {
-  flex: 1 0 0;
   display: flex;
   gap: 7px;
   align-items: center;
@@ -236,6 +238,28 @@ h4 {
 }
 .t-s1 {
   font: 500 10px/normal var(--font-body);
+}
+
+/* Figma's Headings H-1 SemiBold…H-4, Body B-1…B-3 and Subtext S1 styles trim the text box
+   to cap height → baseline (leadingTrim: CAP_HEIGHT). Mirror it so auto-layout gaps match. */
+.t-h1,
+.t-h2,
+.t-h3,
+.t-h4,
+.t-h4-medium,
+.t-h4-regular,
+.t-b1,
+.t-b1-medium,
+.t-b1-semibold,
+.t-b2,
+.t-b2-medium,
+.t-b2-semibold,
+.t-b3,
+.t-b3-medium,
+.t-b3-semibold,
+.t-s1,
+.trim {
+  text-box: trim-both cap alphabetic;
 }
 
 .c-grey {

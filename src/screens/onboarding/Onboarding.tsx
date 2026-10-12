@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useAnimationControls } from 'motion/react';
 import { useState, type ReactNode } from 'react';
-import { Screen } from '../../components/Chrome';
+import { Screen, type Indicator } from '../../components/Chrome';
 import { BackLink, Button, PrimaryWithSkip, ProgressBar, RadioCard, TitleBlock } from '../../components/Controls';
 import { CountUp, DateField, Dropdown, RangeSlider, SystemAlert } from '../../components/Inputs';
 import { juan, preferenceTags } from '../../data/mock';
@@ -22,11 +22,14 @@ export const rise = (delay = 0) => ({
  * Fixed onboarding frame: Back link at (20, 15), segmented progress at y=71,
  * Title Block at (28, 171) and a bottom CTA at y=722 of the Real Estate area.
  */
-export function StepFrame({ step, children, cta, ctaTop = 722 }: { step?: number; children: ReactNode; cta: ReactNode; ctaTop?: number }) {
+/** Figma moves the Back arrow per frame; `backAt` is the arrow's top-left in frame coordinates. */
+const backStyle = ([x, y]: [number, number]) => ({ left: x - 8, top: y - 8 - 60 });
+
+export function StepFrame({ step, children, cta, ctaTop = 722, indicator, backAt = [28, 83] }: { step?: number; children: ReactNode; cta: ReactNode; ctaTop?: number; indicator?: Indicator; backAt?: [number, number] }) {
   const nav = useNav();
   return (
-    <Screen>
-      <div className="step__back">
+    <Screen indicator={indicator}>
+      <div className="step__back" style={backStyle(backAt)}>
         <BackLink onClick={nav.back} />
       </div>
       {step && (
@@ -43,11 +46,11 @@ export function StepFrame({ step, children, cta, ctaTop = 722 }: { step?: number
 }
 
 /** Scrolling onboarding frame (long forms): progress bar sticks to the top. */
-export function ScrollStepFrame({ step, children }: { step: number; children: ReactNode }) {
+export function ScrollStepFrame({ step, children, backAt = [26, 87] }: { step: number; children: ReactNode; backAt?: [number, number] }) {
   const nav = useNav();
   return (
     <Screen>
-      <div className="step-scroll__back">
+      <div className="step-scroll__back" style={backStyle(backAt)}>
         <BackLink onClick={nav.back} />
       </div>
       <div className="step-scroll__progress">
@@ -67,10 +70,12 @@ export function RoleSelection({ initialRole = null }: { initialRole?: Role | nul
   const { update } = useStore();
   const params = useParams<{ role: Role }>();
   const [role, setRole] = useState<Role | null>(params.role ?? initialRole);
+  const [tried, setTried] = useState(false);
   const shake = useAnimationControls();
 
   const next = () => {
     if (!role) {
+      setTried(true);
       shake.start({ x: [0, -10, 10, -6, 6, 0], transition: { duration: 0.4 } });
       return;
     }
@@ -79,7 +84,7 @@ export function RoleSelection({ initialRole = null }: { initialRole?: Role | nul
   };
 
   return (
-    <StepFrame step={1} cta={<PrimaryWithSkip label="Next" onPrimary={next} onSkip={nav.back} />}>
+    <StepFrame step={1} backAt={initialRole === 'landlord' ? [32, 83] : [28, 83]} cta={<PrimaryWithSkip label="Next" onPrimary={next} onSkip={nav.back} />}>
       <motion.div className="step__title" {...rise()}>
         <TitleBlock subtitle="1 / 5" title="How will you be using Espas.you?" description="Choose among the options below." />
       </motion.div>
@@ -90,7 +95,7 @@ export function RoleSelection({ initialRole = null }: { initialRole?: Role | nul
         </motion.div>
       </motion.div>
       <AnimatePresence>
-        {!role && (
+        {!role && tried && (
           <motion.p className="role__hint t-b2-medium c-grey" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             Pick one to continue
           </motion.p>
@@ -202,7 +207,7 @@ export function TenantPreferences() {
   const toggle = (t: string) => setPicked((p) => (p.includes(t) ? p.filter((x) => x !== t) : [...p, t]));
 
   return (
-    <ScrollStepFrame step={4}>
+    <ScrollStepFrame step={4} backAt={[27, 87]}>
       <div className="prefs">
         <motion.div {...rise()}>
           <TitleBlock subtitle="4 / 5" title="What are you interested in?" description="It helps us match you with the right spaces — promise, no spam." />
@@ -275,17 +280,12 @@ export function NotificationsStep({ next, role }: { next: ScreenId; role: Role }
     <StepFrame
       step={5}
       ctaTop={677}
+      indicator={role === 'landlord' ? 'grey' : 'dark'}
+      backAt={role === 'landlord' ? [36, 87] : [32, 83]}
       cta={<PrimaryWithSkip label="Yes, I want to get notified" skipLabel="Don't send me notifications" onPrimary={() => setAsking(true)} onSkip={() => decide(false)} />}
     >
       <motion.div className="step__title" {...rise()}>
         <TitleBlock subtitle="5 / 5" title="Lastly, we’ll need to get you notified." description="It helps us match you with the right spaces near you. Promise, no spam." />
-      </motion.div>
-      <motion.div className="notif-preview" initial={{ opacity: 0, y: -30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: 0.6, type: 'spring', stiffness: 260, damping: 22 }}>
-        <img src="/figma/logo-red.svg" width={28} height={28} alt="" />
-        <div>
-          <p className="t-b3-semibold">Espas.you · now</p>
-          <p className="t-b2">{role === 'tenant' ? 'Shiela approved your application 🎉' : 'New application: Juan Dela Cruz (100)'}</p>
-        </div>
       </motion.div>
       <SystemAlert
         open={asking}
@@ -315,6 +315,11 @@ const JUAN: Person = { name: juan.name, title: 'Top Applicant', avatar: '/figma/
 type ScoreProps = {
   /** Figma: tenant title is Title/T3/Bold, Trusted Tenants is Title/T3/SemiBold. */
   titleWeight?: 'bold' | 'semibold';
+  indicator?: Indicator;
+  /** Figma: tenant Reliability Score has no Back link; Trusted Tenants does. */
+  backAt?: [number, number];
+  /** Trusted Tenants (landlord) uses a taller header, no status bar and lower content. */
+  layout?: 'tenant' | 'landlord';
   person?: Person;
   title?: string;
   body?: string;
@@ -329,35 +334,34 @@ export function ReliabilityScore({
   cta = 'Continue',
   onCta = (nav) => nav.push('endOfOnboarding'),
   titleWeight = 'bold',
+  indicator = 'dark',
+  backAt,
+  layout = 'tenant',
 }: ScoreProps) {
   const nav = useNav<ScreenId>();
   return (
     <Screen
       tone="light"
+      indicator={indicator}
+      className={`score--${layout}`}
+      hideStatusBar={layout === 'landlord'}
       backdrop={
+        // The exact gradient artwork rendered from Figma (Reliability Score 2671:7490 · Trusted Tenants 2979:16518).
         <motion.div className="score__gradient" aria-hidden initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-          <motion.img
-            src="/figma/reliability-gradient.svg"
-            width={440}
-            height={350}
-            alt=""
-            animate={{ scale: [1, 1.08, 1], rotate: [0, 2, 0] }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          />
+          <img src={`/figma/reliability-header-${layout}.webp`} width={440} height={layout === 'landlord' ? 424 : 350} alt="" />
         </motion.div>
       }
     >
-      <div className="score__back">
-        <BackLink onClick={nav.back} tone="light" />
-      </div>
+      {backAt && (
+        <div className="score__back" style={backStyle(backAt)}>
+          <BackLink onClick={nav.back} tone={layout === 'landlord' ? 'dark' : 'light'} />
+        </div>
+      )}
       <div className="score__profile">
         <div className="score__avatar-wrap">
-          <motion.div className={`score__avatar ${person.fill ? 'score__avatar--fill' : ''}`} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}>
+          <motion.div className="score__avatar" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}>
             <img src={person.avatar} alt={person.name} />
           </motion.div>
-          <svg className="score__ring" viewBox="0 0 170 170" aria-hidden>
-            <motion.circle cx="85" cy="85" r="82" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.3, ease: spring, delay: 0.35 }} />
-          </svg>
           <motion.div className="score__badge" initial={{ scale: 0, rotate: -12 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 420, damping: 16, delay: 0.45 }}>
             <CountUp to={person.badge} delay={0.45} duration={1.1} format={(n) => n.toFixed(person.decimals ?? 0)} />
           </motion.div>

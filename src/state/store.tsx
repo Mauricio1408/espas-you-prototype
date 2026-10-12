@@ -86,6 +86,9 @@ function syncPublished(d: ListingDraft) {
   if (d.published) allListings.push(draftToListing(d));
 }
 
+/** Monthly-rent filter ceiling; the top of the slider means 'and up'. */
+export const PRICE_MAX = 40000;
+
 export type AppState = {
   role: Role | null;
   signedIn: boolean;
@@ -102,7 +105,7 @@ export type AppState = {
     notifications: boolean | null;
   };
   favorites: string[];
-  filters: { moveIn: string | null; verifiedOnly: boolean; types: string[]; amenities: string[] };
+  filters: { moveIn: string | null; verifiedOnly: boolean; types: string[]; amenities: string[]; price: [number, number] };
   conversation: ChatMessage[];
   draft: ListingDraft;
   application: {
@@ -140,12 +143,12 @@ export const initialState: AppState = {
     gender: 'Male',
     phone: juan.phone,
     email: juan.email,
-    preferences: ['🚆 Near Transit', '🔇 Quiet', '🛡️ Security'],
+    preferences: [], // Figma Interests frame shows the default state: nothing chosen
     budget: [12000, 20000],
     notifications: null,
   },
   favorites: defaultFavorites,
-  filters: { moveIn: null, verifiedOnly: false, types: [], amenities: [] },
+  filters: { moveIn: null, verifiedOnly: false, types: [], amenities: [], price: [0, PRICE_MAX] },
   conversation: seedConversation,
   draft: initialDraft,
   application: {

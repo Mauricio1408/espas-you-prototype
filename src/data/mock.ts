@@ -51,7 +51,7 @@ export type Listing = {
   rating: number;
   reviews: number;
   image: string;
-  status: string;
+  status?: string;
   landlord: Landlord;
   gallery?: string[];
   maxOccupants?: number;
@@ -92,7 +92,7 @@ export const listings = {
     rating: 4.7,
     reviews: 210,
     image: photos.loftBalcony,
-    status: 'Move in September',
+    // No status label: Figma's Best Picks card for this listing shows none.
     landlord: landlords.shiela,
     pin: { x: 30, y: 30 },
   }),
@@ -144,7 +144,7 @@ export const listings = {
     rating: 4.8,
     reviews: 203,
     image: photos.aptOpenPlan,
-    status: 'Immediate occupancy',
+    // No status label (as in Figma's Move-in Ready card).
     landlord: landlords.carlos,
   }),
   cottage: L({
@@ -476,8 +476,8 @@ export const mapPins: MapPin[] = [
   { emoji: '🌳', x: 47 + 1008, y: 471 + 104, listing: mapOnly.gardenStudio, petFriendly: true },
   { emoji: '🏭', x: 298 + 1008, y: 245 + 104, listing: mapOnly.katipunanLoft },
   { emoji: '🏰', x: 234 + 1008, y: 569 + 104, listing: mapOnly.blueRidge },
-  { emoji: '🏠', x: 165 + 1008, y: 191 + 104, label: '₱8,260' },
-  { emoji: '🚜', x: 100 + 1008, y: 669 + 104, label: '₱13,450' },
+  { emoji: '🏠', x: 165 + 1008, y: 191 + 104, label: '₱14,200' },
+  { emoji: '🚜', x: 100 + 1008, y: 669 + 104, label: '₱14,200' }, // taken pins read ₱14,200 in Figma
 ];
 
 /** Lifestyle chips on the dashboard filter the feed. */

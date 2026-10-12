@@ -157,7 +157,9 @@ export function RadioCard({ label, selected, onSelect, children }: { label: Reac
     >
       <span className="radio-card__row">
         <RadioDot on={selected} />
-        <span className="radio-card__label">{label}</span>
+        <span className="radio-card__label">
+          <span className="radio-card__text">{label}</span>
+        </span>
       </span>
       {children}
     </motion.button>
@@ -165,9 +167,13 @@ export function RadioCard({ label, selected, onSelect, children }: { label: Reac
 }
 
 /** `Onboarding / Progress Bar` — 5 segmented dashes; the active one fills left→right. */
-export function ProgressBar({ step, total = 5, segWidth = 66 }: { step: number; total?: number; segWidth?: number }) {
+/**
+ * Figma draws each segment as an 8px round-capped line (onboarding 57.6 long, gap 24; Apply 79.5, gap 24).
+ * The caps add 4px at each end, so the visible pill is length + 8 and the visible gap is gap − 8.
+ */
+export function ProgressBar({ step, total = 5, segWidth = 65.6, gap = 16 }: { step: number; total?: number; segWidth?: number; gap?: number }) {
   return (
-    <div className="progress" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={step}>
+    <div className="progress" style={{ gap }} role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={step}>
       {Array.from({ length: total }, (_, i) => (
         <span key={i} className="progress__seg" style={{ width: segWidth }}>
           <motion.span

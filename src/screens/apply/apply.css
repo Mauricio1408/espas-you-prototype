@@ -154,7 +154,7 @@
   align-items: center;
   gap: 6px;
   height: 60px;
-  padding: 0 24px;
+  padding: 0 22px; /* 24 in Figma, minus the 2px stroke */
   border-radius: var(--radius-full);
   background: var(--surface-highlight);
   border: 2px solid var(--stroke);
@@ -363,7 +363,6 @@
 .doc__sub {
   font: 400 12px/normal var(--font-body);
   color: var(--text-grey);
-  font-variant-numeric: tabular-nums;
 }
 .doc__replace {
   font: 600 14px/normal var(--font-body);

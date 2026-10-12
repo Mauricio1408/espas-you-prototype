@@ -129,11 +129,11 @@ export function Favorites() {
   const [sortAsc, setSortAsc] = useState(false);
   const saved = state.favorites.map(listingById);
   const shown = saved
-    .filter((l) => (tab === 'Available Now' ? /ready|immediate/i.test(l.status) : tab === 'Price drop' ? l.price <= 22000 : true))
+    .filter((l) => (tab === 'Available Now' ? /ready|immediate/i.test(l.status ?? '') : tab === 'Price drop' ? l.price <= 22000 : true))
     .sort((a, b) => (sortAsc ? a.price - b.price : 0));
 
   return (
-    <Screen footer={<TenantBottomNav active="favorites" />}>
+    <Screen indicator="grey" footer={<TenantBottomNav active="favorites" />}>
       <div className="scroll inbox">
         <Header
           title="Favorites"
@@ -207,7 +207,7 @@ export function ApplicationList() {
     { listing: listings.riverStudio, kicker: 'Updated yesterday, April 19', status: { label: 'Under review', tone: 'warn' }, open: () => nav.push('viewListing', { params: { id: 'river-studio' } }) },
   ];
   return (
-    <Screen footer={<TenantBottomNav active="account" />}>
+    <Screen indicator="grey" footer={<TenantBottomNav active="account" />}>
       <div className="scroll inbox">
         <div className="inbox__back">
           <motion.button type="button" className="round-icon" onClick={nav.back} whileTap={{ scale: 0.9 }} aria-label="Back">
@@ -245,7 +245,7 @@ export function Messages() {
     .filter((t) => !query || t.name.toLowerCase().includes(query.toLowerCase()));
 
   return (
-    <Screen footer={<TenantBottomNav active="messages" />}>
+    <Screen indicator="grey" footer={<TenantBottomNav active="messages" />}>
       <div className="scroll inbox">
         <Header
           title="Messages"
@@ -435,7 +435,7 @@ export function Account() {
   );
 
   return (
-    <Screen footer={<TenantBottomNav active="account" />}>
+    <Screen indicator="grey" footer={<TenantBottomNav active="account" />}>
       <div className="scroll inbox inbox--account">
         <p className="t-b2 account__label">Account</p>
         <motion.div className="profile-card" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: spring }}>
@@ -515,7 +515,7 @@ export function ApplicationStatus() {
       : `${l.landlord.name.split(' ')[0]} is reviewing your details. Switch to the landlord journey to decide.`;
 
   return (
-    <Screen tone="light" backdrop={<div className="sent__hero approved__hero"><img src={l.id === 'cozy-loft' ? '/figma/listing-hero.webp' : l.image} alt="" /></div>}>
+    <Screen tone="light" indicator="dark" backdrop={<div className="sent__hero approved__hero"><img src={l.id === 'cozy-loft' ? '/figma/listing-hero.webp' : l.image} alt="" /></div>}>
       <motion.button type="button" className="glass-round approved__back" whileTap={{ scale: 0.9 }} onClick={nav.back} aria-label="Back">
         <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
       </motion.button>

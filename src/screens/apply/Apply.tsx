@@ -59,7 +59,7 @@ function ApplyFrame({ step, children }: { step: number; children: ReactNode }) {
   return (
     <Screen>
       <div className="apply__head">
-        <ProgressBar step={step} total={4} segWidth={85.5} />
+        <ProgressBar step={step} total={4} segWidth={87.5} gap={16} />
         <ApplyingFor />
         <img src="/figma/divider-dashed.svg" width={392} height={1} alt="" />
       </div>
@@ -461,7 +461,7 @@ export function Apply5() {
   ] as const;
 
   return (
-    <Screen tone="light" background="var(--surface-default)" backdrop={<div className="sent__hero"><img src={l.id === 'cozy-loft' ? '/figma/listing-hero.webp' : l.image} alt="" /></div>}>
+    <Screen tone="light" indicator="dark" background="var(--surface-default)" backdrop={<div className="sent__hero"><img src={l.id === 'cozy-loft' ? '/figma/listing-hero.webp' : l.image} alt="" /></div>}>
       <SuccessBadge />
       <div className="sent__body">
         <motion.div {...rise(0.35)}>

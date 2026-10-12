@@ -26,7 +26,7 @@ const spring = [0.32, 0.72, 0, 1] as const;
 export function LandlordFrame({ step, children, cta, ctaSpace = 190 }: { step: number; children: ReactNode; cta: ReactNode; ctaSpace?: number }) {
   const nav = useNav();
   return (
-    <Screen>
+    <Screen indicator="grey">
       <div className="step__back" style={{ left: 28, top: 19 }}>
         <BackLink onClick={nav.back} />
       </div>
@@ -322,6 +322,9 @@ export function TrustedTenants() {
       body="Our Tenant Reliability Score screens renters using verified data, so you can confidently choose the right fit for your property."
       cta="Enlist my property"
       titleWeight="semibold"
+      indicator="grey"
+      backAt={[32, 38]}
+      layout="landlord"
       onCta={(nav) => nav.reset(['landlordDashboard'], { transition: 'dissolve' })}
     />
   );
@@ -601,7 +604,7 @@ export function LandlordListings() {
   const sub = `${mine.length} ${mine.length === 1 ? 'property' : 'properties'} · ${waiting} awaiting review`;
 
   return (
-    <Screen footer={<LandlordBottomNav active="listings" />}>
+    <Screen indicator="grey" footer={<LandlordBottomNav active="listings" />}>
       <div className="scroll inbox">
         <Header
           title="Listed Properties"
@@ -716,7 +719,7 @@ export function LandlordMessages() {
     .filter((t) => !query || t.name.toLowerCase().includes(query.toLowerCase()));
 
   return (
-    <Screen footer={<LandlordBottomNav active="messages" />}>
+    <Screen indicator="grey" footer={<LandlordBottomNav active="messages" />}>
       <div className="scroll inbox">
         <Header title="Messages" actions={<RoundIcon src="/figma/icon-search-18.svg" w={20} h={20} label="Search" onClick={() => setQuery((q) => (q === null ? '' : null))} />} />
         <AnimatePresence initial={false}>
@@ -1047,7 +1050,7 @@ export function LandlordApproved() {
   }, [a.name]);
 
   return (
-    <Screen tone="light" backdrop={<div className="sent__hero approved__hero"><img src="/figma/listing-hero.webp" alt="" /></div>}>
+    <Screen tone="light" indicator="dark" backdrop={<div className="sent__hero approved__hero"><img src="/figma/listing-hero.webp" alt="" /></div>}>
       <motion.button type="button" className="glass-round approved__back" whileTap={{ scale: 0.9 }} onClick={nav.back} aria-label="Back">
         <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
       </motion.button>

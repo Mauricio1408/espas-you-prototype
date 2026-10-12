@@ -141,6 +141,10 @@
   top: -8.37px;
 }
 .brand-mark__wordmark {
+  display: grid;
+  place-items: center;
+  width: 180px;
+  height: 34px;
   filter: drop-shadow(0 0 4.668px rgba(0, 0, 0, 0.04));
 }
 .brand-mark__tagline {
@@ -225,7 +229,7 @@
   width: 100%;
 }
 .social-btn {
-  flex: 1 0 0;
+  flex: 0 0 calc(50% - 6px); /* Figma: 184 + 12 + 184; a 1-0-0 basis gave the bordered one 4px more */
   display: grid;
   place-items: center;
   height: 60px;
