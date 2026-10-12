@@ -10,8 +10,8 @@ export function SuccessBadge({ burst = true, delay = 0.15 }: { burst?: boolean; 
       <motion.img
         className="success-badge"
         src="/figma/approved-badge.webp"
-        width={190}
-        height={190}
+        width={180}
+        height={180}
         alt=""
         initial={{ scale: 0, rotate: -120 }}
         animate={{ scale: 1, rotate: 0 }}

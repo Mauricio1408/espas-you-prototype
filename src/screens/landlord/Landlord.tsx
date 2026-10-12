@@ -23,14 +23,14 @@ const spring = [0.32, 0.72, 0, 1] as const;
 /* Landlord onboarding frame — header fixed, form scrolls, CTA pinned  */
 /* ------------------------------------------------------------------ */
 
-export function LandlordFrame({ step, children, cta, ctaSpace = 190 }: { step: number; children: ReactNode; cta: ReactNode; ctaSpace?: number }) {
+export function LandlordFrame({ step, children, cta, ctaSpace = 125 }: { step: number; children: ReactNode; cta: ReactNode; ctaSpace?: number }) {
   const nav = useNav();
   return (
     <Screen indicator="grey">
       <div className="step__back" style={{ left: 28, top: 19 }}>
         <BackLink onClick={nav.back} />
       </div>
-      <div className="step-scroll__progress" style={{ top: 72 }}>
+      <div className="step-scroll__progress" style={{ top: 79 }}>
         <ProgressBar step={step} />
       </div>
       <div className="scroll ll-scroll" style={{ bottom: ctaSpace }}>
@@ -162,7 +162,7 @@ export function LandlordVerify({ autoScan = false }: { autoScan?: boolean }) {
       step={4}
       cta={
         <PrimaryWithSkip
-          label={captured ? 'Continue' : 'Scan my ID'}
+          label="Continue"
           skipLabel="Skip this process"
           onPrimary={() => (captured ? nav.push('landlordNotifications') : setScan(ll.idFront ? 'back' : 'front'))}
           onSkip={() => nav.push('landlordNotifications')}
@@ -434,7 +434,7 @@ export function LandlordDashboard() {
                   }
                 >
                   <div className="lcard__image">
-                    <img src={l.image} alt="" loading="lazy" />
+                    <img src={l.id === 'cozy-loft' ? '/figma/landlord-card-cozy-loft.webp' : l.image} alt="" loading="lazy" />
                   </div>
                   <div className="lcard__info">
                     <span className="noissue-tag">No issues</span>
@@ -506,7 +506,8 @@ export function LandlordDashboard() {
                       <svg viewBox="0 0 24 24" width="10" height="10" aria-hidden>
                         <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z" fill="none" stroke="#575757" strokeWidth="2.4" />
                       </svg>
-                      • {a.id === 'juan' ? 'Cozy Loft in Uptown Center' : a.address}
+                      <span className="app-row__dot" />
+                      <span className="app-row__addr">{a.id === 'juan' ? 'Cozy Loft in Uptown Center' : a.address}</span>
                     </span>
                   </span>
                   <span className="app-row__right">
@@ -628,6 +629,7 @@ export function LandlordListings() {
                   <span className="verified-glass">
                     <span>✏️ Draft</span>
                   </span>
+                  <span className="glass-btn llcard__more">•••</span>
                 </div>
                 <div className="llist__body">
                   <div className="llist__top">
@@ -672,8 +674,7 @@ export function LandlordListings() {
                       ) : (
                         <>
                           <img src={juan.avatar} width={20} height={20} alt="" />
-                          <span className="applicants-count">+{applicants.length - 1}</span>
-                          <span>Applicants</span>
+                          <span className="llist__applicants">{`+${applicants.length - 1}  Applicants`}</span>
                         </>
                       )}
                     </span>
@@ -721,7 +722,7 @@ export function LandlordMessages() {
   return (
     <Screen indicator="grey" footer={<LandlordBottomNav active="messages" />}>
       <div className="scroll inbox">
-        <Header title="Messages" actions={<RoundIcon src="/figma/icon-search-18.svg" w={20} h={20} label="Search" onClick={() => setQuery((q) => (q === null ? '' : null))} />} />
+        <Header title="Messages" actions={<RoundIcon src="/figma/icon-search-figma-18.svg" w={18} h={18} label="Search" onClick={() => setQuery((q) => (q === null ? '' : null))} />} />
         <AnimatePresence initial={false}>
           {query !== null && (
             <motion.input
@@ -737,7 +738,7 @@ export function LandlordMessages() {
           )}
         </AnimatePresence>
         <Tabs id="lmsg" tabs={['All', 'Unread', 'Applications'] as LMsgTab[]} value={tab} onChange={setTab} />
-        <div className="threads">
+        <div className="threads threads--ll">
           <AnimatePresence mode="popLayout" initial={false}>
             {list.map((t, i) => {
               const unread = t.unread && !read.includes(t.name);
@@ -918,7 +919,7 @@ export function ReviewApplicant() {
               { t: "Driver's License", s: 'Verified Aug 5', icon: <Truck size={16} strokeWidth={2} color="#1e1e1e" /> },
               { t: 'Payslip (3 months)', s: 'Uploaded Aug 5', icon: <FileText size={16} strokeWidth={2} color="#1e1e1e" /> },
             ].map((d) => (
-              <div key={d.t}>
+              <div key={d.t} className="rvf-doc-wrap">
                 <hr className="rvf-card__div" />
                 <div className="rvf-doc">
                   <span className="rvf-doc__icon">{d.icon}</span>
@@ -1052,7 +1053,7 @@ export function LandlordApproved() {
   return (
     <Screen tone="light" indicator="dark" backdrop={<div className="sent__hero approved__hero"><img src="/figma/listing-hero.webp" alt="" /></div>}>
       <motion.button type="button" className="glass-round approved__back" whileTap={{ scale: 0.9 }} onClick={nav.back} aria-label="Back">
-        <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
+        <img src="/figma/glass-arrow-left-24.svg" width={24} height={24} alt="" />
       </motion.button>
       {approved ? (
         <SuccessBadge />

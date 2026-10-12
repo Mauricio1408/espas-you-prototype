@@ -184,8 +184,10 @@
   text-align: left;
   transition: border-color 200ms ease-out, background-color 200ms ease-out;
 }
+/* Figma 'Active': a 0.5px stroke instead of 2px, so the card is 65 tall */
 .radio-card.is-selected {
-  border-color: rgba(186, 14, 10, 0.3);
+  border-width: 0.5px;
+  padding: 20px 23.5px;
 }
 .radio-card__row {
   display: flex;
@@ -232,6 +234,10 @@
 
 /* ---------- Title block ---------- */
 
+/* Figma rounds the cap-trimmed 20px kicker to 15px */
+.title-block__subtitle {
+  height: 15px;
+}
 .title-block {
   display: flex;
   flex-direction: column;
@@ -366,11 +372,11 @@
 
 /* ---------- Success badge (one mark for every success screen) ---------- */
 .success-badge {
+  /* Figma 'check badge 3d': 180x180 at 130,100 of the frame (the asset bakes in Figma's image filters) */
   position: absolute;
-  left: 125px;
-  top: 0;
+  left: 130px;
+  top: 40px;
   z-index: 2;
-  filter: saturate(1.5) drop-shadow(0 12px 30px rgba(243, 36, 32, 0.35));
 }
 .burst {
   position: absolute;

@@ -388,9 +388,9 @@ export function AddListingPublished() {
   const cover = d.photos[0] ?? photos.studioWhite;
   const rent = Number(d.rent.replace(/\D/g, '')) || 0;
   return (
-    <Screen tone="light" indicator="dark" backdrop={<div className="sent__hero approved__hero"><img src={cover} alt="" /></div>}>
+    <Screen tone="light" indicator="dark" backdrop={<div className="sent__hero approved__hero is-bright"><img src={cover} alt="" /></div>}>
       <motion.button type="button" className="glass-round approved__back" whileTap={{ scale: 0.9 }} onClick={() => nav.reset(['landlordDashboard'], { transition: 'push' })} aria-label="Back to dashboard">
-        <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
+        <img src="/figma/glass-arrow-left-24.svg" width={24} height={24} alt="" />
       </motion.button>
       <SuccessBadge />
       <div className="approved__body">

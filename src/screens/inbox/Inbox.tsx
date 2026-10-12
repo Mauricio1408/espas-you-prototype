@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronsDown } from 'react-feather';
 import { Screen } from '../../components/Chrome';
-import { Button, Switch } from '../../components/Controls';
+import { Button } from '../../components/Controls';
 import { TenantBottomNav, toast } from '../../components/Feed';
 import { SuccessBadge } from '../../components/Success';
 import { emojiFor } from '../../data/emoji';
@@ -42,7 +42,7 @@ export function RoundIcon({ src, w, h, label, onClick }: { src: string; w: numbe
 
 export function Tabs<T extends string>({ tabs, value, onChange, id }: { tabs: T[]; value: T; onChange: (t: T) => void; id: string }) {
   return (
-    <div className="itabs" role="tablist">
+    <div className="itabs" role="tablist" data-id={id}>
       {tabs.map((t) => (
         <button key={t} type="button" role="tab" aria-selected={t === value} className={t === value ? 'is-on' : ''} onClick={() => onChange(t)}>
           {t === value && <motion.span layoutId={`itab-${id}`} className="itabs__thumb" transition={{ type: 'spring', stiffness: 500, damping: 36 }} />}
@@ -94,15 +94,20 @@ function ListingRow({ listing, kicker, status, onOpen, onUnsave, index }: { list
           <p className="t-b1-semibold c-primary lrow__title">{listing.title}</p>
           <p className="lrow__row">
             <span className="t-b2-medium">{peso(listing.price)}/month</span>
-            <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
+            <img src="/figma/dot-575757-4.svg" width={4} height={4} alt="" />
             <span className="t-b2 c-grey">{listing.maxOccupants ?? 4} Pax</span>
           </p>
         </div>
         <p className="lrow__row lrow__row--ll">
-          <img className="lrow__ll" src={listing.id === 'cozy-loft' ? '/figma/landlord-shiela.webp' : listing.landlord.avatar} alt="" />
+          <span className="lrow__llwrap">
+            <img className="lrow__ll" src={listing.id === 'cozy-loft' ? '/figma/landlord-shiela.webp' : listing.landlord.avatar} alt="" />
+            <span className="lrow__check">
+              <img src="/figma/icon-check-white-12.svg" alt="" />
+            </span>
+          </span>
           {listing.landlord.name}
-          <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
-          {listing.landlord.rating.toFixed(2)}
+          <img src="/figma/dot-575757-4.svg" width={4} height={4} alt="" />
+          {listing.rating.toFixed(2)}
           <img src="/figma/icon-star-yellow-12.svg" width={12} height={12} alt="" />
         </p>
         {status && (
@@ -251,7 +256,7 @@ export function Messages() {
           title="Messages"
           actions={
             <>
-              <RoundIcon src="/figma/icon-search-18.svg" w={20} h={20} label="Search" onClick={() => setQuery((q) => (q === null ? '' : null))} />
+              <RoundIcon src="/figma/icon-search-figma-18.svg" w={18} h={18} label="Search" onClick={() => setQuery((q) => (q === null ? '' : null))} />
               <RoundIcon src="/figma/icon-sliders.svg" w={18.5} h={15.5} label="Filter" onClick={() => setTab('Unread')} />
             </>
           }
@@ -296,7 +301,8 @@ export function Messages() {
                   <span className="thread__body">
                     <span className="thread__top">
                       <b>{t.name}</b>
-                      <span className="thread__prop">• {t.property}</span>
+                      <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
+                      <span className="thread__prop">{t.property}</span>
                     </span>
                     <span className={`thread__snippet ${unread ? 'is-unread' : ''}`}>{t.snippet}</span>
                   </span>
@@ -430,7 +436,7 @@ export function Account() {
       </span>
       <span className="arow__label">{label}</span>
       {value && <span className="arow__value">{value}</span>}
-      {trailing ?? <img src="/figma/icon-chevron-right-grey.svg" width={6} height={10} alt="" />}
+      {trailing ?? <img className="arow__chev" src="/figma/icon-chevron-right-grey.svg" width={6} height={10} alt="" />}
     </motion.div>
   );
 
@@ -482,12 +488,8 @@ export function Account() {
             w={18.5002}
             h={20.3301}
             label="Notifications"
+            value={notif ? 'On' : 'Off'}
             onClick={() => update((s) => ({ ...s, tenant: { ...s.tenant, notifications: !notif } }))}
-            trailing={
-              <span onClick={(e) => e.stopPropagation()}>
-                <Switch on={notif} onChange={(v) => update((s) => ({ ...s, tenant: { ...s.tenant, notifications: v } }))} label="Notifications" />
-              </span>
-            }
           />
           <Row icon="icon-info" w={20.3333} h={20.3333} label="Help Center" onClick={() => toast('Help Center opens in a browser')} />
         </div>
@@ -517,7 +519,7 @@ export function ApplicationStatus() {
   return (
     <Screen tone="light" indicator="dark" backdrop={<div className="sent__hero approved__hero"><img src={l.id === 'cozy-loft' ? '/figma/listing-hero.webp' : l.image} alt="" /></div>}>
       <motion.button type="button" className="glass-round approved__back" whileTap={{ scale: 0.9 }} onClick={nav.back} aria-label="Back">
-        <img src="/figma/glass-arrow-left-20.svg" width={20} height={20} alt="" />
+        <img src="/figma/glass-arrow-left-24.svg" width={24} height={24} alt="" />
       </motion.button>
       {approved ? (
         <SuccessBadge burst={false} />
@@ -541,17 +543,19 @@ export function ApplicationStatus() {
             <p className="t-b1-semibold c-primary applying__title">{l.title}</p>
             <p className="applying__row">
               <span className="t-b2-medium">{peso(l.price)}/month</span>
-              <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
+              <img src="/figma/dot-575757-4.svg" width={4} height={4} alt="" />
               <span className="t-b2 c-grey">{l.maxOccupants ?? 4} Pax</span>
             </p>
             <p className="applying__row applying__row--small">
-              {l.inclusion} free
-              <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
-              {l.rating.toFixed(2)}
-              <span className="applying__stars">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <img key={i} src="/figma/icon-star-yellow-12.svg" width={12} height={12} alt="" />
-                ))}
+              {l.id === 'cozy-loft' ? 'Water & Electricity' : l.inclusion} free
+              <img src="/figma/dot-575757-4.svg" width={4} height={4} alt="" />
+              <span className="applying__rating">
+                {l.rating.toFixed(2)}
+                <span className="applying__stars">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <img key={i} src="/figma/icon-star-yellow-12.svg" width={12} height={12} alt="" />
+                  ))}
+                </span>
               </span>
             </p>
           </div>

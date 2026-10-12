@@ -32,12 +32,13 @@ export const avatars = {
   // Persona photos come from the Figma file so every surface shows the same people.
   shiela: '/figma/landlord-shiela.webp',
   juan: '/figma/juan-portrait.webp',
-  sofia: face('photo-1494790108377-be9c29b29330'),
-  maryJoy: face('photo-1438761681033-6461ffad8d80'),
+  sofia: '/figma/avatar-sofia-martinez.webp', // Figma landlord dashboard
+  maryJoy: '/figma/avatar-mary-joy.webp', // Figma landlord dashboard
   bryan: face('photo-1506794778202-cad84cf45f1d'),
-  ana: face('photo-1544005313-94ddf0286df2'),
-  mark: face('photo-1507003211169-0a1dd7228f2d'),
-  carlo: face('photo-1472099645785-5658abf4ff4e'),
+  ana: '/figma/avatar-anna-lee.webp', // Figma portrait
+  mark: '/figma/avatar-mark-santos.jpg', // Figma Messages avatar
+  anaReyes: '/figma/avatar-ana-reyes.jpg', // Figma Messages avatar
+  carlo: '/figma/avatar-carlos.webp', // Figma portrait
 };
 
 export type Landlord = { name: string; rating: number; reviews: number; avatar: string };
@@ -251,7 +252,7 @@ export const listings = {
     inclusion: 'Internet included',
     rating: 4.92,
     reviews: 88,
-    image: photos.aptWarmWood,
+    image: '/figma/listing-modern-studio.webp', // Figma Favorites photo
     status: 'Ready to move in',
     landlord: landlords.carlos,
     maxOccupants: 2,
@@ -264,7 +265,7 @@ export const listings = {
     inclusion: 'Gym & pool access',
     rating: 4.78,
     reviews: 132,
-    image: photos.houseDusk,
+    image: '/figma/listing-spacious-3br.webp', // Figma Favorites photo
     status: 'Ready to move in',
     landlord: landlords.annaLee,
     maxOccupants: 8,
@@ -324,16 +325,16 @@ export type Thread = {
 
 export const threads: Thread[] = [
   { name: 'Shiela Mae Smith', property: 'Uptown Center', snippet: 'Docs look good, reviewing tonight.', time: '30 minutes ago', avatar: avatars.shiela, unread: true },
-  { name: 'Ana Reyes', property: 'Studio near BGC', snippet: 'Thanks! Reviewing your application.', time: '1 hour ago', avatar: avatars.ana, unread: true },
+  { name: 'Ana Reyes', property: 'Studio near BGC', snippet: 'Thanks! Reviewing your application.', time: '1 hour ago', avatar: avatars.anaReyes, unread: true },
   { name: 'Mark Santos', property: 'Makati CBD', snippet: 'Yes, parking is included.', time: '4 hours ago', avatar: avatars.mark },
   { name: 'Carlo Dizon', property: 'Pasig studio', snippet: 'Water and electricity are included.', time: '8 hours ago', avatar: avatars.carlo },
 ];
 
 export const landlordThreads: Thread[] = [
   { name: 'Juan Dela Cruz', property: 'Cozy Loft in Uptown Center', snippet: 'Is the unit still available for August?', time: '2 hours', avatar: avatars.juan, unread: true },
-  { name: 'Mary Joy Santillan', property: 'Spacious Loft with Balcony', snippet: 'Can I bring my pet dog?', time: '4 days ago', avatar: avatars.maryJoy },
-  { name: 'Bryan Kieth', property: 'Cozy Loft in Uptown Center', snippet: 'Can I schedule a viewing this weekend?', time: '1 day ago', avatar: avatars.bryan, unread: true },
-  { name: 'Sofia Martinez', property: 'Cozy Loft in Uptown Center', snippet: 'Okay, thanks for considering me!', time: 'Oct 27', avatar: avatars.sofia },
+  { name: 'Mary Joy Santillan', property: 'Spacious Loft with Balcony', snippet: 'Can I bring my pet dog?', time: '4 days ago', avatar: '/figma/avatar-ll-msg-mary.webp' }, // Figma Messages uses its own photo
+  { name: 'Bryan Kieth', property: 'Cozy Loft in Uptown Center', snippet: 'Can I schedule a viewing this weekend?', time: '1 day ago', avatar: '/figma/avatar-ll-msg-bryan.webp', unread: true },
+  { name: 'Sofia Martinez', property: 'Cozy Loft in Uptown Center', snippet: 'Okay, thanks for considering me!', time: 'Oct 27', avatar: '/figma/avatar-ll-msg-sofia.webp' },
 ];
 
 export type ApplicantStatus = 'In Review' | 'Denied' | 'Approved' | 'Pending';

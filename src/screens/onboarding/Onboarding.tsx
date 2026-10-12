@@ -25,7 +25,7 @@ export const rise = (delay = 0) => ({
 /** Figma moves the Back arrow per frame; `backAt` is the arrow's top-left in frame coordinates. */
 const backStyle = ([x, y]: [number, number]) => ({ left: x - 8, top: y - 8 - 60 });
 
-export function StepFrame({ step, children, cta, ctaTop = 722, indicator, backAt = [28, 83] }: { step?: number; children: ReactNode; cta: ReactNode; ctaTop?: number; indicator?: Indicator; backAt?: [number, number] }) {
+export function StepFrame({ step, children, cta, ctaTop = 722, indicator, backAt = [28, 83], progressTop }: { step?: number; children: ReactNode; cta: ReactNode; ctaTop?: number; indicator?: Indicator; backAt?: [number, number]; progressTop?: number }) {
   const nav = useNav();
   return (
     <Screen indicator={indicator}>
@@ -33,7 +33,7 @@ export function StepFrame({ step, children, cta, ctaTop = 722, indicator, backAt
         <BackLink onClick={nav.back} />
       </div>
       {step && (
-        <div className="step__progress">
+        <div className="step__progress" style={progressTop !== undefined ? { top: progressTop } : undefined}>
           <ProgressBar step={step} />
         </div>
       )}
@@ -279,13 +279,18 @@ export function NotificationsStep({ next, role }: { next: ScreenId; role: Role }
   return (
     <StepFrame
       step={5}
-      ctaTop={677}
+      ctaTop={role === 'landlord' ? 725 : 677}
+      progressTop={role === 'landlord' ? 79 : undefined}
       indicator={role === 'landlord' ? 'grey' : 'dark'}
       backAt={role === 'landlord' ? [36, 87] : [32, 83]}
       cta={<PrimaryWithSkip label="Yes, I want to get notified" skipLabel="Don't send me notifications" onPrimary={() => setAsking(true)} onSkip={() => decide(false)} />}
     >
-      <motion.div className="step__title" {...rise()}>
-        <TitleBlock subtitle="5 / 5" title="Lastly, we’ll need to get you notified." description="It helps us match you with the right spaces near you. Promise, no spam." />
+      <motion.div className="step__title" style={role === 'landlord' ? { top: 183 } : undefined} {...rise()}>
+        {role === 'landlord' ? (
+          <TitleBlock subtitle="5 / 5" title="Lastly, we'll need to get you notified." description="So you never miss a message from a prospective tenant." />
+        ) : (
+          <TitleBlock subtitle="5 / 5" title="Lastly, we’ll need to get you notified." description="It helps us match you with the right spaces near you. Promise, no spam." />
+        )}
       </motion.div>
       <SystemAlert
         open={asking}

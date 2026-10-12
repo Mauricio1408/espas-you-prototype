@@ -32,22 +32,26 @@ function ApplyingFor() {
           <p className="t-b1-semibold c-primary applying__title">{l.title}</p>
           <p className="applying__row">
             <span className="t-b2-medium">{peso(l.price)}/month</span>
-            <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
+            <img src="/figma/dot-575757-4.svg" width={4} height={4} alt="" />
             <span className="t-b2 c-grey">{l.maxOccupants ?? 4} Pax</span>
           </p>
         </div>
         <p className="applying__row applying__row--small">
           <span className="applying__ll">
             <img src={isHero ? '/figma/landlord-shiela.webp' : l.landlord.avatar} alt="" />
-            <span className="applying__ll-check" />
+            <span className="applying__ll-check">
+              <img src="/figma/icon-check-white-12.svg" alt="" />
+            </span>
           </span>
           {l.landlord.name}
-          <img src="/figma/dot-grey-4.svg" width={4} height={4} alt="" />
-          {l.rating.toFixed(2)}
-          <span className="applying__stars">
-            {Array.from({ length: 5 }, (_, i) => (
-              <img key={i} src="/figma/icon-star-yellow-12.svg" width={12} height={12} alt="" />
-            ))}
+          <img src="/figma/dot-575757-4.svg" width={4} height={4} alt="" />
+          <span className="applying__rating">
+            {l.rating.toFixed(2)}
+            <span className="applying__stars">
+              {Array.from({ length: 5 }, (_, i) => (
+                <img key={i} src="/figma/icon-star-yellow-12.svg" width={12} height={12} alt="" />
+              ))}
+            </span>
           </span>
         </p>
       </div>
@@ -64,7 +68,7 @@ function ApplyFrame({ step, children }: { step: number; children: ReactNode }) {
         <img src="/figma/divider-dashed.svg" width={392} height={1} alt="" />
       </div>
       <div className="scroll apply__scroll">
-        <div className="apply__content">{children}</div>
+        <div className={`apply__content apply__content--step${step}`}>{children}</div>
       </div>
     </Screen>
   );
@@ -80,7 +84,7 @@ function Field({ label, value, onChange, verified, prefix, inputMode, error }: {
         {verified && (
           <span className="verified-chip">
             <img src="/figma/dot-green.svg" width={8} height={8} alt="" />
-            Verified
+            <span className="trim">Verified</span>
           </span>
         )}
       </span>
@@ -236,8 +240,17 @@ export function Apply2() {
         <Dropdown label="Employment Status" options={['Employed', 'Self-employed', 'Freelancer', 'Student']} value={status} onChange={setStatus} />
         <Field label="Employer / Company" value={w.employer} onChange={(v) => setW({ ...w, employer: v })} />
         <Field label="Job title" value={w.jobTitle} onChange={(v) => setW({ ...w, jobTitle: v })} />
-        <Field label="Monthly income" prefix="₱" value={w.income} inputMode="numeric" onChange={(v) => setW({ ...w, income: toNumber(v) ? toNumber(v).toLocaleString('en-PH') : '' })} />
-        <Field label="Years employed" value={w.years} onChange={(v) => setW({ ...w, years: v })} />
+        <Field
+          label="Monthly income (In Pesos)"
+          prefix="₱"
+          value={w.income ? `${w.income}.00` : ''}
+          inputMode="numeric"
+          onChange={(v) => {
+            const n = toNumber(v.replace(/\.\d{0,2}$/, ''));
+            setW({ ...w, income: n ? n.toLocaleString('en-PH') : '' });
+          }}
+        />
+        <Field label="Length of employment" value={w.years} onChange={(v) => setW({ ...w, years: v })} />
         <Affordability income={income} rent={rent} />
       </motion.div>
       <StepButtons
@@ -301,10 +314,23 @@ function DocRow({ title, sub, done, optional, onUpload, onReplace }: { title: st
       </span>
       <span className="doc__text">
         <span className="doc__title">
-          {title}
-          {optional && !done && <span className="doc__optional">Optional</span>}
+          <span className="trim">{title}</span>
+          {optional && !done && (
+            <span className="doc__optional">
+              <span className="trim">Optional</span>
+            </span>
+          )}
         </span>
-        <span className="doc__sub">{progress !== null ? `Uploading… ${Math.round(progress)}%` : sub}</span>
+        <span className="doc__sub">
+          {progress !== null
+            ? `Uploading… ${Math.round(progress)}%`
+            : sub.split(' • ').map((part, i) => (
+                <span key={part} className="doc__sub-part">
+                  {i > 0 && <img src="/figma/dot-575757-4.svg" width={4} height={4} alt="" />}
+                  <span className="trim">{part}</span>
+                </span>
+              ))}
+        </span>
       </span>
       {done && <span className="doc__replace">Replace</span>}
     </motion.button>
@@ -316,6 +342,9 @@ export function Apply3() {
   const { state, update } = useStore();
   const docs = state.application.docs;
   const [cert, setCert] = useState(false);
+  const [tried, setTried] = useState(false);
+  const ready = docs.id && docs.payslip;
+  const ratio = Number(state.application.work.income.replace(/[^\d]/g, '')) / listingById(state.application.listingId).price;
   const setDoc = (k: 'id' | 'payslip', v: boolean) => update((s) => ({ ...s, application: { ...s.application, docs: { ...s.application.docs, [k]: v } } }));
 
   return (
@@ -324,22 +353,24 @@ export function Apply3() {
         <TitleBlock subtitle="3 / 4" title="Upload documents" description="Only the landlord of this listing can see these" />
       </motion.div>
       <motion.div className="apply__docs" {...rise(0.06)}>
-        <DocRow title="Valid government ID" sub="Driver's License • Uploaded Aug 5" done={docs.id} onUpload={() => setDoc('id', true)} onReplace={() => setDoc('id', false)} />
+        <DocRow title="Valid government ID" sub="Driver's License • Uploaded Aug 2" done={docs.id} onUpload={() => setDoc('id', true)} onReplace={() => setDoc('id', false)} />
         <DocRow title="Proof of Income" sub={docs.payslip ? 'Payslip (3 months) • Uploaded just now' : 'Payslip or bank statement • Last 3 months'} done={docs.payslip} onUpload={() => { setDoc('payslip', true); toast('Payslip uploaded'); }} onReplace={() => setDoc('payslip', false)} />
         <DocRow title="Employment Certificate" sub={cert ? 'Certificate • Uploaded just now' : 'Speeds up landlord approval • Last 3 months'} done={cert} optional onUpload={() => setCert(true)} onReplace={() => setCert(false)} />
         <div className="income-card is-good income-card--small">
           <img src="/figma/icon-shield.svg" width={28} height={28} alt="" />
-          <p className="t-b3">Files are encrypted and shared only with Shiela. You can remove them anytime.</p>
+          <p className="income-card__note">
+            {ratio >= 3 ? 'Your income meets the 3x monthly rent guideline most landlords look for.' : 'Your income is under the 3x guideline. Your Reliability Score still counts in your favour.'}
+          </p>
         </div>
       </motion.div>
       <AnimatePresence>
-        {!(docs.id && docs.payslip) && (
+        {tried && !ready && (
           <motion.p className="apply__nudge t-b2-medium c-grey" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             Upload your ID and proof of income to continue
           </motion.p>
         )}
       </AnimatePresence>
-      <StepButtons onNext={() => nav.push('apply4')} disabled={!(docs.id && docs.payslip)} />
+      <StepButtons onNext={() => (ready ? nav.push('apply4') : setTried(true))} />
     </ApplyFrame>
   );
 }
@@ -373,7 +404,7 @@ export function Apply4() {
   const app = state.application;
   const [moveIn, setMoveIn] = useState<string | null>(app.moveIn);
   const [message, setMessage] = useState(app.message);
-  const [consent, setConsent] = useState(false);
+  const [consent, setConsent] = useState(true); // Figma shows the box ticked
   const [busy, setBusy] = useState(false);
 
   const submit = () => {
@@ -417,15 +448,15 @@ export function Apply4() {
           title="Documents"
           onEdit={nav.back}
           rows={[
-            ['Government ID', app.docs.id ? "Driver's License ✓" : 'Missing'],
-            ['Proof of income', app.docs.payslip ? 'Payslip ✓' : 'Missing'],
+            ['Valid ID', app.docs.id ? 'Uploaded' : 'Missing'],
+            ['Proof of income', app.docs.payslip ? 'Uploaded' : 'Missing'],
+            ['Employment cert.', 'Not added'],
           ]}
         />
         <DateField label="Preferred Move-in Date" value={moveIn} onChange={setMoveIn} />
         <label className="afield tappable">
           <span className="afield__label">
-            <span className="t-b1">Message to landlord (optional)</span>
-            <span className="t-b3 c-grey">{message.length}/300</span>
+            <span className="t-b1 c-grey">Message to landlord (optional)</span>
           </span>
           <textarea className="amessage" value={message} maxLength={300} rows={4} onChange={(e) => setMessage(e.target.value)} />
         </label>
@@ -433,12 +464,12 @@ export function Apply4() {
           <motion.span className={`consent__box ${consent ? 'is-on' : ''}`} animate={{ scale: consent ? [1, 1.15, 1] : 1 }} transition={{ duration: 0.25 }}>
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
             {consent && (
-              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden>
-                <motion.path d="M20 6 9 17l-5-5" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.2 }} />
+              <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden>
+                <motion.path d="M2.5 7.3 5.6 10.2 11.5 3.8" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.2 }} />
               </svg>
             )}
           </motion.span>
-          <span className="t-b2">I confirm this information is true and consent to Espas.you sharing it with this landlord.</span>
+          <span className="consent__text">I confirm this information is true and consent to Espas.you sharing it with this landlord.</span>
         </label>
       </motion.div>
       <StepButtons next="Submit application" onNext={submit} disabled={!consent} busy={busy} />
@@ -473,25 +504,24 @@ export function Apply5() {
             <div key={s.title} className={`timeline__row is-${s.state}`}>
               <span className="timeline__dot">
                 {s.state === 'done' && (
-                  <svg viewBox="0 0 24 24" width="10" height="10" aria-hidden>
-                    <path d="M20 6 9 17l-5-5" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden>
+                    <path d="M2 6.3 4.9 9 10 3.2" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 )}
-                {s.state === 'current' && <span className="timeline__ping" />}
               </span>
               {i < steps.length - 1 && (
                 <motion.span className="timeline__line" initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: 0.8 + i * 0.3, duration: 0.4 }} />
               )}
-              <div>
+              <div className="timeline__text">
                 <p className="t-b1-semibold">{s.title}</p>
-                <p className="t-b3 c-grey">{s.sub}</p>
+                <p className="timeline__sub">{s.sub}</p>
               </div>
             </div>
           ))}
         </motion.div>
         <motion.div className="sent__buttons" {...rise(0.55)}>
           <Button onClick={() => nav.push('applicationStatus')}>Track application</Button>
-          <Button variant="secondary" className="btn--light" onClick={() => nav.reset(['tenantDashboard'], { transition: 'push' })}>
+          <Button variant="secondary" className="btn--outline-light" onClick={() => nav.reset(['tenantDashboard'], { transition: 'push' })}>
             Keep browsing
           </Button>
         </motion.div>

@@ -1,15 +1,17 @@
 /* Onboarding frame */
+/* Figma clips the form hard at the CTA bar (y 785) */
 .ll-scroll {
   position: absolute;
-  inset: 104px 0 190px;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 24px), transparent);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 24px), transparent);
+  inset: 104px 0 125px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
 }
+/* Figma landlord steps: progress line at y 143, title block at 243 (100 below), form 60 below it */
 .ll-content {
   display: flex;
   flex-direction: column;
-  gap: 40px;
-  padding: 40px 28px 40px;
+  gap: 60px;
+  padding: 79px 28px 40px;
 }
 .ll-content .title-block {
   width: 384px;
@@ -17,7 +19,7 @@
 .ll-cta {
   position: absolute;
   left: 28px;
-  bottom: 20px;
+  bottom: 12px; /* Figma CTA bar: 12px padding */
   width: 384px;
 }
 .ll-cta .primary-skip {
@@ -580,32 +582,37 @@
 .rvf-stack > * {
   flex: none;
 }
+/* Figma profile Stack: no visible fill or stroke (same block as the tenant Account profile) */
 .rvf-profile {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
   padding: 28px 20px;
-  border-radius: 20px;
-  background: #fff;
-  border: 1px solid var(--stroke);
 }
 .rvf-profile__avatar {
+  position: relative;
+  flex: none;
   width: 120px;
   height: 120px;
   border-radius: 100px;
-  border: 4px solid var(--red-300);
+  box-shadow: 0 0 0 4px var(--red-300); /* 4px OUTSIDE stroke */
   overflow: hidden;
 }
 .rvf-profile__avatar img {
-  width: 100%;
-  height: 100%;
+  /* Figma crop: 140x187 photo at -4,-33 */
+  position: absolute;
+  left: -4px;
+  top: -33px;
+  width: 140px;
+  height: 187px;
+  max-width: none;
   object-fit: cover;
-  object-position: center 18%;
 }
 .rvf-profile__name {
-  font: 600 28px/1 var(--font-display);
+  font: 600 28px/normal var(--font-display);
   color: var(--neutral-500);
+  text-box: trim-both cap alphabetic;
 }
 .rvf-profile__chips {
   display: flex;
@@ -615,10 +622,11 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 8px 6px 7px;
+  height: 28px;
+  padding: 0 8px 0 7px;
   border-radius: 20px;
   background: var(--red-300);
-  font: 500 14px/1 var(--font-body);
+  font: 500 14px/16px var(--font-body);
   color: var(--neutral-100);
 }
 .rvf-profile__stats {
@@ -634,29 +642,34 @@
   padding: 4px 0;
 }
 .rvf-profile__stats > div + div {
-  border-left: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 1px solid var(--stroke);
 }
 .rvf-profile__stats b {
-  font: 600 24px/1 var(--font-display);
+  height: 17px;
+  font: 600 24px/normal var(--font-display);
+  text-box: trim-both cap alphabetic;
 }
 .rvf-profile__stats span {
-  font: 400 12px/1 var(--font-body);
+  font: 400 12px/20px var(--font-body);
   color: var(--text-grey);
+  text-box: trim-both cap alphabetic;
 }
+/* Figma: dark 300x40 pill, inside stroke, white SemiBold 16 */
 .rvf-profile__btn {
   width: 300px;
   height: 40px;
   border-radius: 1000px;
-  background: #fff;
+  background: #1e1e1e;
   border: 1px solid var(--stroke);
+  box-shadow: var(--elevation-default);
   font: 600 16px/1 var(--font-body);
-  color: var(--neutral-500);
+  color: #f5f5f5;
 }
 .rvf-card {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 4px 0;
+  padding: 3px 0; /* Figma 4, minus the 1px stroke */
   border-radius: 16px;
   background: #fff;
   border: 1px solid var(--stroke);
@@ -670,14 +683,15 @@
 .rvf-card__div {
   margin: 0;
   border: 0;
-  border-top: 1px solid var(--neutral-200);
+  border-top: 1px solid #dbdbd7;
 }
 .rvf-card__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 11px 16px;
+  height: 32px;
+  padding: 0 16px;
   font: 400 14px/10px var(--font-body);
   color: var(--text-grey);
 }
@@ -685,6 +699,10 @@
   font-weight: 500;
   color: var(--neutral-500);
   text-align: right;
+}
+/* hr + row sit in the card's 4px rhythm like the other rows */
+.rvf-doc-wrap {
+  display: contents;
 }
 .rvf-doc {
   display: flex;
@@ -725,15 +743,17 @@
   gap: 10px;
 }
 .rvf-message > p {
-  font: 400 16px/1 var(--font-body);
+  font: 400 16px/24px var(--font-body);
   color: var(--text-grey);
+  text-box: trim-both cap alphabetic;
 }
 .rvf-message__box {
   min-height: 110px;
-  padding: 16px;
+  padding: 16px 36px 0 16px; /* Figma wraps the message at 340px */
   border-radius: 16px;
   background: #fff;
-  font: 500 16px/1.4 var(--font-body);
+  box-shadow: var(--elevation-default);
+  font: 500 16px/20px var(--font-body);
   color: var(--neutral-500);
 }
 .rvf-actions {
@@ -741,28 +761,59 @@
   gap: 12px;
 }
 .rvf-msg-btn {
-  height: 52px;
-  margin-top: -20px;
+  height: 52px; /* Figma: 28 below the decision buttons, like every other block */
   border-radius: 1000px;
   border: 1px solid var(--stroke);
   font: 400 16px/1 var(--font-body);
   color: var(--neutral-500);
 }
 
-/* ID scan: bigger viewfinder (Figma 2895:8601 is 216 tall), bigger hint, tighter buttons */
-.idscan__card {
-  top: 196px;
-}
+/* ID scan (Figma 2898:8668): 392x501 card at y 231; copy = title, 6, two trimmed 14px lines;
+   344x216 viewfinder (r16) with 26x3 corner bars 16 in; buttons 8 apart */
 .viewfinder {
+  align-self: flex-start;
+  width: 344px;
   height: 216px;
+  border-radius: 16px;
+}
+.viewfinder__corner {
+  width: 26px;
+  height: 26px;
+  border-radius: 2px;
+}
+.viewfinder__corner--tl,
+.viewfinder__corner--tr {
+  top: 16px;
+  border-top-width: 3px;
+}
+.viewfinder__corner--bl,
+.viewfinder__corner--br {
+  bottom: 16px;
+  border-bottom-width: 3px;
+}
+.viewfinder__corner--tl,
+.viewfinder__corner--bl {
+  left: 16px;
+  border-left-width: 3px;
+}
+.viewfinder__corner--tr,
+.viewfinder__corner--br {
+  right: 16px;
+  border-right-width: 3px;
 }
 .idscan__hint {
   margin-top: 6px;
-  font: 400 14px/20px var(--font-body); /* Body/B-2/Regular, as in Figma 2895:8600 */
+  font: 400 14px/17px var(--font-body);
   color: var(--text-grey);
+  text-box: trim-both cap alphabetic;
 }
 .idscan__buttons {
   gap: 8px;
+}
+.idscan .idscan__upload {
+  border: 1px solid rgba(89, 87, 87, 0.4) !important;
+  background: var(--surface-default);
+  font-weight: 600;
 }
 .mock-id {
   width: 240px;
@@ -910,4 +961,154 @@
   background: var(--red-10);
   font: 600 11px/16px var(--font-body);
   color: var(--red-300);
+}
+/* Figma form: section heading, 28, then fields 20 apart; 109px country-code pill */
+.ll-fields > .t-h4:first-child {
+  margin-bottom: 8px;
+}
+.ll-fields .phone-row__cc {
+  width: 109px;
+}
+
+/* ---------- Landlord Dashboard (Figma 2518:12816) ---------- */
+.ldash__search-row {
+  gap: 8px;
+}
+.ldash .ldash__search {
+  height: 72px;
+  padding: 16px 20px;
+}
+.ldash__input {
+  height: 15px;
+  line-height: 15px; /* the cap-trimmed H-4 title box */
+}
+.llcard .lcard__image {
+  height: 180px;
+}
+.llcard .lcard__info {
+  gap: 8px;
+}
+.llcard .noissue-tag {
+  padding: 6px 8px;
+  border-radius: 12px;
+  line-height: normal;
+  text-box: trim-both cap alphabetic;
+}
+.llcard .lcard__row {
+  height: 12px;
+  margin-top: 4px; /* price, 12, meta row */
+}
+/* Recent applications: 36px row, 8, 1px divider, 12 */
+.ldash .app-row {
+  padding: 0 0 8px;
+  margin-bottom: 12px;
+  border-bottom-color: #dbdbd7;
+}
+.ldash .app-row .thread__avatar {
+  width: 36px;
+  height: 36px;
+}
+.ldash .app-row__body {
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+}
+.ldash .app-row__name {
+  height: 12px;
+}
+.ldash .app-row__meta {
+  gap: 4px;
+  height: 12px;
+}
+.app-row__dot {
+  flex: none;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #b1b1b1;
+}
+.app-row__addr {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-box: trim-both cap alphabetic;
+  line-height: 20px;
+}
+.ldash .app-row__right {
+  gap: 4px;
+}
+.ldash .app-status {
+  line-height: 12px;
+}
+.ldash .app-row__right > :last-child {
+  line-height: normal;
+  text-box: trim-both cap alphabetic;
+}
+.ldash .ldash__search {
+  flex: 0 0 322px;
+}
+.lcard.llcard {
+  gap: 8px;
+}
+/* Recent Applications: a 26px heading row (4px padding), 24 above the list */
+.dash-section.ldash__section {
+  gap: 24px;
+}
+.ldash__section .dash-section__head {
+  height: 26px;
+}
+
+/* ---------- Landlord Listings (Figma 3017:8629): untrimmed 19 / 28 / 15px text rows ---------- */
+.llist__title {
+  line-height: 19px;
+}
+.llist__status {
+  line-height: 13px;
+}
+.llist__status--draft {
+  background: rgba(30, 30, 30, 0.1);
+}
+.llist__body .t-h4 {
+  line-height: 28px;
+  text-box: none;
+}
+.llist__draft,
+.llist__row {
+  height: 15px;
+  line-height: 15px;
+}
+.llist__img .verified-glass {
+  padding: 4px 8px 4px 6px;
+  line-height: 15px;
+}
+.llist__img .llcard__more {
+  right: 10px;
+}
+.llist__applicants {
+  white-space: pre;
+}
+
+/* ---------- Landlord Messages (Figma 3016:8562): 18px name row with score pill, 4px rhythm ---------- */
+.threads--ll .thread__body {
+  gap: 4px;
+}
+.threads--ll .thread__top {
+  height: 18px;
+  gap: 6px;
+}
+.threads--ll .thread__score {
+  height: 18px;
+}
+/* unread: the 8px dot sits above the time, 12 from the row top */
+.threads--ll .thread__meta:has(.thread__dot) {
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0; /* makes Bryan's row 49 tall, as in Figma */
+}
+.threads--ll .thread__meta:has(.thread__dot) > span:first-child {
+  align-self: flex-end;
+}
+.threads--ll .thread__dot {
+  position: static;
+  order: -1;
 }

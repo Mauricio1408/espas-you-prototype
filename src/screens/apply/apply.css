@@ -11,18 +11,56 @@
 }
 .apply__head .progress {
   width: 390px;
+  height: 20px; /* Figma progress frame: 20 tall, segments centred */
+  align-items: center;
+}
+/* Card / Listing Application (pinned): kicker, 12, title/price stack (12 apart), 8, landlord row */
+.apply__head .applying__info {
+  align-self: stretch;
+  gap: 12px;
+  padding: 8px 2px;
+}
+.apply__head .applying__kicker {
+  text-box: trim-both cap alphabetic;
+}
+.apply__head .applying__stack {
+  gap: 12px;
+}
+.apply__head .applying__stack .applying__row {
+  height: 10px;
+}
+.apply__head .applying__row--small {
+  height: 20.5px;
+  margin-top: -4px;
+}
+.apply__head .applying__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.applying__ll-check {
+  display: grid;
+  place-items: center;
+}
+.applying__ll-check img {
+  width: 3px;
+  height: 3px;
 }
 .apply__scroll {
   position: absolute;
-  inset: 193px 0 0;
+  inset: 192px 0 0;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
   mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
 }
+/* Figma: content starts at y 272 (+20 padding; Apply 1 uses 12); the 20px mask band sits above it */
 .apply__content {
   display: flex;
   flex-direction: column;
   gap: 60px;
-  padding: 32px 24px 40px;
+  padding: 40px 25px 40px; /* Figma content: x 25, 390 wide */
+}
+.apply__content--step1 {
+  padding-top: 32px;
 }
 
 /* Card / Listing Application */
@@ -89,7 +127,7 @@
   height: 20px;
   flex: none;
 }
-.applying__ll img {
+.applying__ll > img {
   width: 20px;
   height: 20px;
   border-radius: 25px;
@@ -117,7 +155,6 @@
   display: flex;
   flex-direction: column;
   gap: 40px;
-  margin-top: -20px;
 }
 .apply__fields--review {
   gap: 28px;
@@ -146,7 +183,7 @@
   border-radius: 100px;
   background: var(--green-100);
   box-shadow: var(--elevation-default);
-  font: 400 12px/1 var(--font-body);
+  font: 400 12px/20px var(--font-body);
   color: var(--green-400);
 }
 .afield__pill {
@@ -184,12 +221,13 @@
 }
 .amessage {
   width: 100%;
-  min-height: 120px;
-  padding: 16px 20px;
-  border-radius: 20px;
-  border: 2px solid var(--stroke);
+  min-height: 110px;
+  padding: 16px 33px 0 16px; /* Figma wraps the message at 340px */
+  border-radius: 16px;
+  border: 0;
   background: var(--surface-highlight);
-  font: 400 16px/24px var(--font-body);
+  box-shadow: var(--elevation-default);
+  font: 500 16px/20px var(--font-body);
   color: var(--text-black);
   resize: none;
   outline: 0;
@@ -277,46 +315,58 @@
 }
 .income-card--small {
   flex-wrap: nowrap;
+  gap: 8px;
+  padding: 11px; /* Figma 12 inside a 1px inside stroke */
+  border-color: #dbdbd7;
+  box-shadow: var(--elevation-default);
+}
+.income-card__note {
+  font: 400 12px/20px var(--font-body);
+  color: var(--text-grey);
+  text-box: trim-both cap alphabetic;
 }
 
 /* Documents */
+/* Figma: rows 20 apart, then 40 to the income note */
 .apply__docs {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: -20px;
+  gap: 20px;
+}
+.apply__docs .income-card {
+  margin-top: 20px;
 }
 .doc {
   display: flex;
   align-items: center;
   gap: 12px;
   min-height: 70px;
-  padding: 12px 16px;
+  padding: 14px; /* Figma 16 minus the 2px stroke */
   border-radius: 16px;
   background: var(--surface-highlight);
-  border: 1.5px dashed var(--neutral-300);
+  border: 2px dashed #dbdbd7;
+  box-shadow: var(--elevation-default);
   text-align: left;
   transition: border-color 200ms ease-out, box-shadow 200ms ease-out;
 }
 .doc.is-done {
-  border: 1.5px solid transparent;
-  box-shadow: var(--elevation-default);
+  border: 2px solid transparent;
 }
 .doc.is-uploading {
   border-color: var(--surface-primary);
 }
 .doc__icon {
   position: relative;
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   flex: none;
   display: grid;
   place-items: center;
 }
 .doc__check,
 .doc__up {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -325,11 +375,11 @@
   background: var(--surface-primary);
 }
 .doc__up {
-  background: var(--neutral-200);
+  background: #dbdbd7;
 }
 .doc__ring {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 38px;
   rotate: -90deg;
   fill: none;
   stroke-width: 3;
@@ -345,24 +395,37 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  padding: 4px 0;
 }
 .doc__title {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-height: 12px;
   font: 600 16px/24px var(--font-body);
 }
 .doc__optional {
-  padding: 2px 8px;
-  border-radius: 100px;
-  background: var(--neutral-200);
-  font: 500 10px/1.4 var(--font-body);
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 1000px;
+  background: #dbdbd7;
+  font: 400 10px/normal var(--font-body);
   color: var(--text-grey);
 }
 .doc__sub {
-  font: 400 12px/normal var(--font-body);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 9px;
+  font: 400 12px/20px var(--font-body);
   color: var(--text-grey);
+  white-space: nowrap;
+}
+.doc__sub-part {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .doc__replace {
   font: 600 14px/normal var(--font-body);
@@ -370,7 +433,12 @@
 }
 
 /* Review */
+/* Figma: 44px head, then 1px #DBDBD7 dividers and 32px rows, every child 4 apart, 4px card padding */
 .review {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
   border-radius: 16px;
   background: var(--surface-highlight);
   box-shadow: var(--elevation-default);
@@ -380,28 +448,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid var(--stroke);
+  height: 44px;
+  padding: 0 16px;
 }
 .review__edit {
   font: 600 14px/normal var(--font-body);
   color: var(--surface-primary);
+  text-box: trim-both cap alphabetic;
 }
 .review__row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
+  height: 37px; /* 1px divider + 4 gap + 32px row */
+  padding: 4px 16px 0;
+  border-top: 1px solid #dbdbd7;
   font: 400 14px/normal var(--font-body);
-  border-bottom: 1px solid var(--stroke);
 }
-.review__row:last-child {
-  border-bottom: 0;
+.review__row span {
+  text-box: trim-both cap alphabetic;
 }
 .review__row span:first-child {
   color: var(--text-grey);
 }
 .review__row span:last-child {
+  font-weight: 500;
   text-align: right;
 }
 
@@ -409,16 +481,21 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 0 4px;
+  padding: 4px 0;
   cursor: pointer;
+}
+.consent__text {
+  width: 340px;
+  font: 400 14px/17px var(--font-body);
+  color: var(--text-grey);
+  text-box: trim-both cap alphabetic;
 }
 .consent__box {
   position: relative;
   flex: none;
-  width: 22px;
-  height: 22px;
-  margin-top: 1px;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
   border: 1.5px solid var(--neutral-300);
   background: #fff;
   display: grid;
@@ -443,7 +520,7 @@
   left: 0;
   top: 0;
   width: 440px;
-  height: 360px;
+  height: 290px; /* Apply 5; the approval screens use 360 */
   overflow: hidden;
 }
 .sent__hero img {
@@ -455,7 +532,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0) 60%);
+  background: rgba(26, 26, 26, 0.4); /* Figma: #1A1A1A 40% over the photo */
 }
 .sent__check {
   position: absolute;
@@ -486,14 +563,18 @@
     opacity: 0;
   }
 }
+/* Figma Apply 5: text stack (4px padding) at y 340, 40 to the timeline, 28 to the buttons */
 .sent__body {
   position: absolute;
   left: 25px;
-  top: 300px;
+  top: 280px;
   width: 390px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 28px;
+}
+.sent__body > div:first-child {
+  padding: 4px 0;
 }
 .sent__sub {
   margin-top: 12px;
@@ -501,8 +582,8 @@
 .timeline {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 20px;
+  margin-top: 12px;
+  padding: 16px;
   border-radius: 16px;
   background: var(--surface-highlight);
   box-shadow: var(--elevation-default);
@@ -510,20 +591,23 @@
 .timeline__row {
   position: relative;
   display: flex;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 56px;
+}
+.timeline__row:last-child {
+  min-height: 37px;
 }
 .timeline__dot {
   position: relative;
   z-index: 1;
   flex: none;
-  width: 18px;
-  height: 18px;
-  margin-top: 3px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  border: 1.5px solid var(--neutral-300);
-  background: #fff;
+  border: 2px solid #b1b1b1;
 }
 .timeline__row.is-done .timeline__dot {
   background: var(--surface-primary);
@@ -532,29 +616,35 @@
 .timeline__row.is-current .timeline__dot {
   border-color: var(--text-black);
 }
-.timeline__ping {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--text-black);
-  animation: blink 1.4s ease-in-out infinite;
-}
-@keyframes blink {
-  50% {
-    opacity: 0.25;
-  }
-}
 .timeline__line {
   position: absolute;
-  left: 8.25px;
+  left: 10px;
   top: 22px;
-  width: 1.5px;
-  height: calc(100% + 0px);
-  background: var(--neutral-300);
+  width: 2px;
+  height: 34px;
+  background: #dbdbd7;
   transform-origin: top;
 }
-.timeline__row.is-done .timeline__line {
-  background: var(--surface-primary);
+/* Figma text stacks: 4/0/18 padding (Under review has none on top), title 8 above the meta */
+.timeline__text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0 18px;
+}
+.timeline__row.is-current .timeline__text {
+  padding-top: 0;
+}
+.timeline__row:last-child .timeline__text {
+  padding-bottom: 4px;
+}
+.timeline__row.is-todo .t-b1-semibold {
+  color: var(--text-grey);
+}
+.timeline__sub {
+  font: 400 12px/20px var(--font-body);
+  color: var(--text-grey);
+  text-box: trim-both cap alphabetic;
 }
 .sent__buttons {
   display: flex;
@@ -572,6 +662,9 @@
 .apply__buttons {
   gap: 24px;
 }
+.apply__buttons .primary-skip__skip {
+  height: 60px; /* Figma: a 60px borderless Button / Default */
+}
 
 /* ---------- Affordability meter ---------- */
 .afford {
@@ -581,7 +674,6 @@
   padding: 16px 20px 18px;
   border-radius: 20px;
   background: var(--surface-highlight);
-  border: 1px solid var(--stroke);
   box-shadow: var(--elevation-default);
   --tier: var(--green-400);
   --tier-tint: var(--green-10);
@@ -600,14 +692,14 @@
   justify-content: space-between;
 }
 .afford__kicker {
-  font: 500 14px/20px var(--font-body);
+  font: 500 14px/17px var(--font-body);
   color: var(--text-grey);
 }
 .afford__pill {
   padding: 4px 10px;
   border-radius: 100px;
   background: var(--tier-tint);
-  font: 600 12px/16px var(--font-body);
+  font: 600 12px/15px var(--font-body);
   color: var(--tier);
 }
 .afford__figure {
@@ -622,13 +714,12 @@
   color: var(--tier);
 }
 .afford__of {
-  font: 500 16px/24px var(--font-body);
+  font: 500 16px/19px var(--font-body);
   color: var(--text-black);
 }
 .afford__track {
   position: relative;
   height: 10px;
-  margin: 6px 0 0;
 }
 .afford__zone {
   position: absolute;
@@ -664,7 +755,7 @@
 .afford__scale {
   position: relative;
   height: 16px;
-  font: 400 11px/16px var(--font-body);
+  font: 400 11px/13px var(--font-body);
   color: var(--text-grey);
 }
 .afford__scale span {
@@ -695,16 +786,30 @@
   flex: none;
 }
 .afford__math {
-  font: 400 12px/16px var(--font-body);
+  font: 400 12px/15px var(--font-body);
   color: var(--text-grey);
   text-align: center;
 }
 
-/* Application sent: badge + more air between the photo and the headline */
-.sent__hero {
-  height: 290px;
+
+/* Figma Apply phone row: 109px code pill, 8 gap */
+.apply__content .phone-row__cc {
+  width: 109px;
 }
-.sent__body {
-  top: 280px;
-  gap: 28px;
+.apply__fields .afield__prefix {
+  color: var(--text-black); /* Figma: "₱ 68,500.00" is one black Medium run */
+}
+/* Apply 4 sets its buttons 28 below the consent row (the other steps use 60) */
+.apply__content--step4 .apply__buttons {
+  margin-top: -32px;
+}
+/* Apply 4: grey labels, a 384px date selector, 10 between the message label and its box */
+.apply__fields--review .labelled {
+  width: 384px;
+}
+.apply__fields--review .labelled__label {
+  color: var(--text-grey);
+}
+.apply__fields--review .afield:has(.amessage) {
+  gap: 10px;
 }
