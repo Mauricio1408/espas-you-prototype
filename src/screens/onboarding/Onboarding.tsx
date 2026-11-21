@@ -351,9 +351,8 @@ export function ReliabilityScore({
       className={`score--${layout}`}
       hideStatusBar={layout === 'landlord'}
       backdrop={
-        // The exact gradient artwork rendered from Figma (Reliability Score 2671:7490 · Trusted Tenants 2979:16518).
         <motion.div className="score__gradient" aria-hidden initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-          <img src={`/figma/reliability-header-${layout}.webp`} width={440} height={layout === 'landlord' ? 424 : 350} alt="" />
+          <img className="score__gradient-image" src={`/figma/reliability-header-${layout}.webp`} width={440} height={layout === 'landlord' ? 424 : 350} alt="" />
         </motion.div>
       }
     >
@@ -367,13 +366,16 @@ export function ReliabilityScore({
           <motion.div className="score__avatar" initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}>
             <img src={person.avatar} alt={person.name} />
           </motion.div>
-          <motion.div className="score__badge" initial={{ scale: 0, rotate: -12 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', stiffness: 420, damping: 16, delay: 0.45 }}>
-            <CountUp to={person.badge} delay={0.45} duration={1.1} format={(n) => n.toFixed(person.decimals ?? 0)} />
-          </motion.div>
         </div>
         <motion.div className="score__name" {...rise(0.3)}>
           <p className="t-h2">{person.name}</p>
-          <p className="t-h4-medium">{person.title}</p>
+          <div className="score__details">
+            <p className="score__role">{person.title}</p>
+            <motion.div className="score__badge" initial={{ scale: 0.7, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 420, damping: 20, delay: 0.45 }}>
+              <span className="score__badge-label">Score</span>
+              <CountUp to={person.badge} delay={0.45} duration={1.1} format={(n) => n.toFixed(person.decimals ?? 0)} />
+            </motion.div>
+          </div>
         </motion.div>
       </div>
       <div className="score__stack">
