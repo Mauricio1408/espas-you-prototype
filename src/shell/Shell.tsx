@@ -94,7 +94,7 @@ export function Shell() {
       </header>
 
       <p className="panel__lede">
-        A trust-first rental app for the Philippines. Tenants build a <strong>Reliability Score</strong>; landlords review verified
+        A trust-first rental app for the Philippines. Tenants build a <span className="fg-inline-bold">Reliability Score</span>; landlords review verified
         applicants. Coded from the Figma hi-fi, using the prototype’s own motion spec.
       </p>
 

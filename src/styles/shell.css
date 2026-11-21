@@ -68,6 +68,9 @@
   font: 400 14px/1.55 var(--font-body);
   color: #3d3d3d;
 }
+.panel__lede .fg-inline-bold {
+  font-weight: 700;
+}
 .panel__card {
   display: flex;
   flex-direction: column;
