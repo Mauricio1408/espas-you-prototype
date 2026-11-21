@@ -155,6 +155,39 @@
   border-color: var(--red-300);
   color: var(--text-white);
 }
+.prefs__chips .pref-chip {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    color 140ms ease-out,
+    border-color 180ms ease-out,
+    box-shadow 180ms ease-out;
+}
+.prefs__chips .pref-chip::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(100deg, var(--red-300) 0%, var(--red-200) 58%, var(--yellow-400) 125%);
+  content: '';
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 180ms var(--ease-spring);
+}
+.prefs__chips .pref-chip.is-on {
+  background: var(--neutral-50);
+  border-color: color-mix(in srgb, var(--red-200) 75%, var(--yellow-400));
+  box-shadow: 0 4px 16px rgba(186, 14, 10, 0.16);
+}
+.prefs__chips .pref-chip.is-on::before {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .prefs__chips .pref-chip,
+  .prefs__chips .pref-chip::before {
+    transition-duration: 1ms;
+  }
+}
 .prefs__footer {
   display: flex;
   flex-direction: column;
