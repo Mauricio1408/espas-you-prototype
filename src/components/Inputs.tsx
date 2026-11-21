@@ -196,13 +196,13 @@ export function Calendar({ value, onChange }: { value: Date; onChange: (d: Date)
       <div className="calendar__body">
         <div className="calendar__nav">
           <motion.button type="button" whileTap={{ scale: 0.85 }} onClick={() => shift(-1)} aria-label="Previous month">
-            <img src="/figma/icon-arrow-left-circle.svg" width={24} height={24} alt="" />
+            <img src="/figma/icon-arrow-left.svg" width={24} height={24} alt="" />
           </motion.button>
           <p className="t-b1-semibold">
             {MONTHS[view.getMonth()]} {view.getFullYear()}
           </p>
           <motion.button type="button" whileTap={{ scale: 0.85 }} onClick={() => shift(1)} aria-label="Next month">
-            <img src="/figma/icon-arrow-right-circle.svg" width={24} height={24} alt="" />
+            <img src="/figma/icon-arrow-left.svg" width={24} height={24} alt="" style={{ transform: 'rotate(180deg)' }} />
           </motion.button>
         </div>
         <div className="calendar__grid">
